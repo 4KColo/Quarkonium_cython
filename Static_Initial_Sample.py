@@ -51,10 +51,3 @@ class Static_Initial_Sample:
 		p = p1 + p2
 		E = np.sqrt( mass_quarkonium**2 + np.sum(p**2) )
 		return np.append(E, p)
-	
-
-
-
-
-
-

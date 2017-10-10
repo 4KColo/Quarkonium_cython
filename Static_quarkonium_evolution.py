@@ -416,9 +416,4 @@ class QQbar_evol:
 
 
 		self.t += dt
-#### ----------------- end of evolution function ----------------- ####	
-
-
-
-
-
+#### ----------------- end of evolution function ----------------- ####
