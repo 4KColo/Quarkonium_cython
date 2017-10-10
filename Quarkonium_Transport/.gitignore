@@ -1,0 +1,4 @@
+build/
+cython/*.cpp
+test/table*
+test/*.so
