@@ -315,7 +315,6 @@ class QQbar_evol:
 				# get the recombine probability
 				# the factor of 2 is for the theta function normalization
 				reco_prob = 2.0*8./9.*np.array(reco_rate)*dt/C1
-				print reco_prob
 				total_reco_prob = np.sum(reco_prob)
 				reject_prob = np.random.rand(1)
 				if total_reco_prob > reject_prob:
