@@ -204,7 +204,7 @@ class QQbar_evol:
 			v3_in_box = p4_in_box[1:]/p4_in_box[0]
 			v_in_box = np.sqrt(np.sum(v3_in_box**2))
 			rate_decay = self.rates.get_R_1S_dis( v_in_box, self.T )		# GeV
-			
+
 			if rate_decay * dt/C1 >= np.random.rand(1):
 				delete_U1S.append(i)
 				# initial gluon sampling: incoming momentum
@@ -253,7 +253,7 @@ class QQbar_evol:
 		
 		
 		### ------------------ recombination ------------------ ###
-		if self.recombine == True:
+		if self.recombine == True and len_Q != 0 and len_Qbar !=0:
 			delete_Q = []
 			delete_Qbar = []
 			
@@ -306,14 +306,16 @@ class QQbar_evol:
 						# relative momentum inside CM frame
 						p_rel = 0.5*(pQ_CM - pQbar_CM)
 						p_rel_abs = np.sqrt(np.sum(p_rel**2))
-						
+												
 						reco_rate.append(self.rates.get_R_1S_reco(v_CM_abs, self.T, p_rel_abs, r_rel))
 						
 					else:	# rdotp >= 0 or the Qbar has been taken by other Q's
 						reco_rate.append(0.)
 				
 				# get the recombine probability
-				reco_prob = 8./9.*np.array(reco_rate)*dt/C1
+				# the factor of 2 is for the theta function normalization
+				reco_prob = 2.0*8./9.*np.array(reco_rate)*dt/C1
+				print reco_prob
 				total_reco_prob = np.sum(reco_prob)
 				reject_prob = np.random.rand(1)
 				if total_reco_prob > reject_prob:
@@ -334,7 +336,7 @@ class QQbar_evol:
 					x_CM = 0.5*( xQ + xQbar )
 					
 					# momenta
-					pQ = self.Qlist['4-momentum'][i], T_Vxyz[1:]
+					pQ = self.Qlist['4-momentum'][i]
 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
 					
 					# CM momentum and velocity

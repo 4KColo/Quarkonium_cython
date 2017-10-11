@@ -25,6 +25,11 @@ std::uniform_real_distribution<double> reco_reject(0., 1.);
 double BE(double x){
 	return 1./(std::exp(x)-1.);
 }
+
+double BEplus1(double x){
+    return 1./(1. - std::exp(-x));
+}
+
 double fac1(double z){
 	return std::log(1. - std::exp(-z));
 }
@@ -176,11 +181,11 @@ double R_1S_decay(double vabs, double T){
 // here we define rate * vol = v_rel * cross section; p is the QQbar relative momentum
 // rate * vol for a specific color, no summation over colors
 double RtimesV_1S_reco(double v, double T, double p){
-	double q = p*p/2./M + E1S;
+	double q = p*p/M + E1S;
     double r = reco_1S_prefactor * pow(q,3) *M2_1S_to_Psi_p(p)* pow(InverseFermiToGeV,3);
 // convert GeV^-2 to GeV * fm^3
     if (v < small_number){
-		double enhencement = 1. + BE(q/T);
+		double enhencement = BEplus1(q/T);
 		return 2.* r * enhencement;
 	}
 	else{
@@ -194,17 +199,13 @@ double RtimesV_1S_reco(double v, double T, double p){
 // no factor of 2 here, need to add factor 2 when determining theta function
 double dist_position(double r){
     double sigma = a_B * InverseFermiToGeV;
-    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma, 1.5) );
+    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 
 
 // now sampling
-double BEplus1(double x){
-    return 1./(1. - std::exp(-x));
-}
-
 double reco_sample_1S_q(double p){
-    double q = p*p/2./M + E1S;
+    double q = p*p/M + E1S;
     return q;
 }
 
