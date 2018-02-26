@@ -453,7 +453,12 @@ class QQbar_evol:
 #### ----------------- end of evolution function ----------------- ####
 
 
-
+#### ----------------- define clear function ------------------ ####
+	def dict_clear(self):
+		self.Qlist.clear()
+		self.Qbarlist.clear()
+		self.U1Slist.clear()
+#### ----------------- end of clear function ------------------ ####
 
 
 #### -------------------- test gluon recombination -------------------- ####
