@@ -9,5 +9,7 @@ const double a_B = 2./fix_alpha_s/CF/M;
 const double E1S = fix_alpha_s*CF/2./a_B;
 const double M1S = 2.*M - E1S;
 const double InverseFermiToGeV = 0.197327;
+const double li2_minus1 = -0.822467;
+const double accuracy = 0.001;
 
 #endif

@@ -22,7 +22,7 @@ E_1S = alpha_s*C_F/(2.0*a_B)  # Upsilon(1S), here is magnitude, true value is it
 M_1S = M*2.0 - E_1S  		  # mass of Upsilon(1S)
 C1 = 0.197327                 # 0.197 GeV*fm = 1
 R_search = 1.0				  # (fm), pair-search radius in the recombination
-T_1S = 0.4					  # melting temperature of Upsilon_1S = 400 MeV
+T_1S = 1.5					  # melting temperature of Upsilon_1S in GeV
 
 
 ####--------- initial sample of heavy Q and Qbar using thermal distribution -------- ####
@@ -72,11 +72,14 @@ class QQbar_evol:
 		self.T = temp_init		# initial temperature in GeV	
 		self.recombine = recombine
 		self.HQ_scat = HQ_scat
-		
+		if self.HQ_scat == True:
+			self.HQ_diff = HQ_p_update()
+		## ---------- create the rates reader --------- ##
+		self.event = DisRec.DisRec()
 		
 ####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
 	def initialize(self, N_Q = 100, N_Qbar = 100, N_U1S = 10, Lmax = 10.0, thermal_dist = True,
-	Fonll_path = False, Pmax = False, decaytestmode = False, P_decaytest = [0.0, 0.0, 5.0]):
+	fonll_dist = False, Fonll_path = False, uniform_dist = False, Pmax = 10.0, decaytestmode = False, P_decaytest = [0.0, 0.0, 5.0]):
 		# initial momentum: thermal; Fonll (give the fonll file path), uniform in x,y,z (give the Pmax in GeV)
         # if decaytestmode: give initial Px,Py,Pz in GeV
 		if self.type == 'static':
@@ -102,7 +105,7 @@ class QQbar_evol:
 					self.U1Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Slist['last_form_time'].append( self.t )
 			
-			if Fonll_path == True:
+			if fonll_dist == True:
 				p_generator = Static_Initial_Sample(Fonll_path, rapidity = 0.)
 				
 				for i in range(N_Q):
@@ -116,8 +119,7 @@ class QQbar_evol:
 					self.U1Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Slist['last_form_time'].append( self.t )
 			
-			Pmax += 10**(-10)		# in case somebody gives Pmax = 0
-			if Pmax == True:
+			if uniform_dist == True:
 				for i in range(N_Q):
 					self.Qlist['4-momentum'].append( uniform_sample(Pmax, M) )
 					self.Qlist['3-position'].append( np.random.rand(3)*Lmax )
@@ -150,9 +152,6 @@ class QQbar_evol:
 			self.U1Slist['3-position'] = np.array(self.U1Slist['3-position'])
 			self.U1Slist['last_form_time'] = np.array(self.U1Slist['last_form_time'])
 			
-			## ---------- create the rates reader --------- ##
-			self.rates = DisRec.DisRec()
-			
 
 #### ---------------- event evolution function ------------------ ####
 	def run(self, dt = 0.04, temp_run = -1.0):			# universal time to consider recombination
@@ -165,11 +164,10 @@ class QQbar_evol:
 		
 		### ------------- heavy quark diffusion --------------- ###
 		if self.HQ_scat == True:
-			HQ_diff = HQ_p_update()
 			for i in range(len_Q):
-				self.Qlist['4-momentum'][i] = HQ_diff.update(HQ_Ep = self.Qlist['4-momentum'][i], Temp = self.T, time_step = dt)
+				self.Qlist['4-momentum'][i] = self.HQ_diff.update(HQ_Ep = self.Qlist['4-momentum'][i], Temp = self.T, time_step = dt)
 			for i in range(len_Qbar):
-				self.Qbarlist['4-momentum'][i] = HQ_diff.update(HQ_Ep = self.Qbarlist['4-momentum'][i], Temp = self.T, time_step = dt)
+				self.Qbarlist['4-momentum'][i] = self.HQ_diff.update(HQ_Ep = self.Qbarlist['4-momentum'][i], Temp = self.T, time_step = dt)
 		
 		### ----------- end of heavy quark diffusion ---------- ###
 
@@ -203,40 +201,57 @@ class QQbar_evol:
 			p4_in_box = self.U1Slist['4-momentum'][i]
 			v3_in_box = p4_in_box[1:]/p4_in_box[0]
 			v_in_box = np.sqrt(np.sum(v3_in_box**2))
-			rate_decay = self.rates.get_R_1S_dis( v_in_box, self.T )		# GeV
-
-			if rate_decay * dt/C1 >= np.random.rand(1):
+			rate_decay_gluon = self.event.get_R1S_decay_gluon( v_in_box, self.T )	# GeV
+			rate_decay_ineq = self.event.get_R1S_decay_ineq( v_in_box, self.T )		# GeV
+			# rate_decay_ineg
+			prob_decay_gluon = rate_decay_gluon * dt/C1
+			prob_decay_ineq = rate_decay_ineq * dt/C1
+			rej_mc = np.random.rand(1)
+			
+			if rej_mc <= prob_decay_gluon:
+				abcdefg = 0.0
+# 				delete_U1S.append(i)
+# 				# outgoing momenta of Q Qbar in the rest frame of quarkonia
+# 				recoil_pQpQbar = self.event.sample_S1S_decay_gluon( v_in_box, self.T )
+# 				recoil_pQ = np.array(recoil_pQpQbar[0:4])
+# 				recoil_pQbar = np.array(recoil_pQpQbar[4:8])
+# 				# Q, Qbar momenta need to be rotated from the v = z axis to what it is in the box frame
+# 				# first get the rotation matrix angles
+# 				theta_rot, phi_rot = LorRot.angle( v3_in_box )
+# 				# then do the rotation in the spatial components
+# 				rotmomentum_Q = LorRot.rotation4(recoil_pQ, theta_rot, phi_rot)
+# 				rotmomentum_Qbar = LorRot.rotation4(recoil_pQbar, theta_rot, phi_rot)
+# 				
+# 				# we now transform them back to the box frame
+# 				momentum_Q = LorRot.lorentz(rotmomentum_Q, -v3_in_box)			# final momentum of Q
+# 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
+# 				
+# 				# positions of Q and Qbar
+# 				position_Q = self.U1Slist['3-position'][i]
+# 				#position_Qbar = position_Q
+# 		
+# 				# add x and p for the QQbar to the temporary list
+# 				add_pQ.append(momentum_Q)
+# 				add_pQbar.append(momentum_Qbar)
+# 				add_xQ.append(position_Q)
+# 				#add_xQbar.append(position_Qbar)
+				
+			elif rej_mc <= prob_decay_gluon + prob_decay_ineq:
 				delete_U1S.append(i)
-				# initial gluon sampling: incoming momentum
-				q, costheta1, phi1 = self.rates.pydecay_sample_1S_init( v_in_box, self.T )
-				sintheta1 = np.sqrt(1. - costheta1**2)
-				# final QQbar sampling: relative momentum
-				p_rel, costheta2, phi2 = self.rates.pydecay_sample_1S_final(q)
-				sintheta2 = np.sqrt(1. - costheta2**2)
-				
-				# all the following three momentum components are in the quarkonium rest frame
-				tempmomentum_g = np.array([q*sintheta1*np.cos(phi1), q*sintheta1*np.sin(phi1), q*costheta1])
-				tempmomentum_Q = np.array([p_rel*sintheta2*np.cos(phi2), p_rel*sintheta2*np.sin(phi2), p_rel*costheta2])
-				#tempmomentum_Qbar = -tempmomentum_Q	#(true in the quarkonium rest frame)
-				
-				# add the recoil momentum from the gluon
-				recoil_p_Q = 0.5*tempmomentum_g + tempmomentum_Q
-				recoil_p_Qbar = 0.5*tempmomentum_g - tempmomentum_Q
-				
-				# energy of Q and Qbar
-				E_Q = np.sqrt(  np.sum(recoil_p_Q**2) + M**2  )
-				E_Qbar = np.sqrt(  np.sum(recoil_p_Qbar**2) + M**2  )
-				
+ 				#outgoing momenta of Q Qbar in the rest frame of quarkonia
+				recoil_pQpQbar = self.event.sample_S1S_decay_ineq( v_in_box, self.T )
+				recoil_pQ = np.array(recoil_pQpQbar[0:4])
+				recoil_pQbar = np.array(recoil_pQpQbar[4:8])		
 				# Q, Qbar momenta need to be rotated from the v = z axis to what it is in the box frame
 				# first get the rotation matrix angles
 				theta_rot, phi_rot = LorRot.angle( v3_in_box )
-				# then do the rotation
-				rotmomentum_Q = LorRot.rotation(recoil_p_Q, theta_rot, phi_rot)
-				rotmomentum_Qbar = LorRot.rotation(recoil_p_Qbar, theta_rot, phi_rot)
+				# then do the rotation in the spatial components
+				rotmomentum_Q = LorRot.rotation4(recoil_pQ, theta_rot, phi_rot)
+				rotmomentum_Qbar = LorRot.rotation4(recoil_pQbar, theta_rot, phi_rot)
 				
 				# we now transform them back to the box frame
-				momentum_Q = LorRot.lorentz(np.append(E_Q, rotmomentum_Q), -v3_in_box)			# final momentum of Q
-				momentum_Qbar = LorRot.lorentz(np.append(E_Qbar, rotmomentum_Qbar), -v3_in_box)	# final momentum of Qbar
+				momentum_Q = LorRot.lorentz(rotmomentum_Q, -v3_in_box)			# final momentum of Q
+				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
 				position_Q = self.U1Slist['3-position'][i]
@@ -247,7 +262,8 @@ class QQbar_evol:
 				add_pQbar.append(momentum_Qbar)
 				add_xQ.append(position_Q)
 				#add_xQbar.append(position_Qbar)
-		
+ 				
+			#elif prob_mc <= rate_decay_gluon + rate_decay_ineq + rate_decay_ineg:
 		### ------------------ end of decay ------------------- ###
 		
 		
@@ -275,63 +291,100 @@ class QQbar_evol:
 			
 			for i in range(len_Q):		# loop over Q
 				len_recoQbar = len(pair_list[i])
-				reco_rate = []
+				rate_reco_gluon = []
+				rate_reco_ineq = []
+				rate_reco_ineg = []
 				for j in range(len_recoQbar):		# loop over Qbar within R_search
 					# positions in lab frame
 					xQ = self.Qlist['3-position'][i]
 					xQbar = Qbar_x_list[pair_list[i][j]]
 					x_rel = xQ - xQbar
 					i_Qbar_mod = pair_list[i][j]%len_Qbar	# use for momentum and delete_index
-					rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
+					#rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
 					
-					if  rdotp < 0.0 and i_Qbar_mod not in delete_Qbar:
+					if  i_Qbar_mod not in delete_Qbar:
 						r_rel = np.sqrt(np.sum(x_rel**2))
-						x_CM = 0.5*( xQ + xQbar )
-					
+						#x_CM = 0.5*( xQ + xQbar )
 						# momenta in hydro cell frame
 						pQ = self.Qlist['4-momentum'][i]
 						pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
-						
 						# CM momentum and velocity
-						p_CM = pQ[1:] + pQbar[1:]		# M_tot = 2M
-						p_CM_sqd = np.sum(p_CM**2)
-						E_CM = np.sqrt(p_CM_sqd + (2.*M)**2)
-						v_CM_abs = np.sqrt(p_CM_sqd)/E_CM
-						v_CM = p_CM/E_CM
+						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
 						
-						# viewed in the CM frame
-						pQ_CM = LorRot.lorentz(pQ, v_CM)
-						pQbar_CM = LorRot.lorentz(pQbar, v_CM)
+						rate_reco_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, self.T, p_rel_abs, r_rel))
+						rate_reco_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, self.T, p_rel_abs, r_rel))
 						
-						# relative momentum inside CM frame
-						p_rel = 0.5*(pQ_CM - pQbar_CM)
-						p_rel_abs = np.sqrt(np.sum(p_rel**2))
-												
-						reco_rate.append(self.rates.get_R_1S_reco(v_CM_abs, self.T, p_rel_abs, r_rel))
-						
-					else:	# rdotp >= 0 or the Qbar has been taken by other Q's
-						reco_rate.append(0.)
+					else:	# the Qbar has been taken by other Q's
+						rate_reco_gluon.append(0.)
+						rate_reco_ineq.append(0.)
 				
 				# get the recombine probability
-				# the factor of 2 is for the theta function normalization
-				reco_prob = 2.0*8./9.*np.array(reco_rate)*dt/C1
-				total_reco_prob = np.sum(reco_prob)
-				reject_prob = np.random.rand(1)
-				if total_reco_prob > reject_prob:
+				# 3/4 factor for Upsilon(1S) v.s. eta_b
+				prob_reco_gluon = 0.75*8./9.*np.array(rate_reco_gluon)*dt/C1
+				prob_reco_ineq = 0.75*8./9.*np.array(rate_reco_ineq)*dt/C1
+				total_prob_reco_gluon = np.sum(prob_reco_gluon)
+				total_prob_reco_ineq = np.sum(prob_reco_ineq)
+				rej_mc = np.random.rand(1)
+				if rej_mc <= total_prob_reco_gluon:
+					abcdefg = 0.0
+# 					delete_Q.append(i)		# remove this Q later
+# 					# find the Qbar we need to remove
+# 					a = 0.0
+# 					for j in range(len_recoQbar):
+# 						if a <= rej_mc <= a + prob_reco_gluon[j]:
+# 							k = j
+# 							break
+# 						a += prob_reco_gluon[j]
+# 					delete_Qbar.append(pair_list[i][k]%len_Qbar)
+# 					
+# 					# re-construct the reco event and sample initial and final states
+# 					# positions and local temperature
+# 					xQ = self.Qlist['3-position'][i]
+# 					xQbar = Qbar_x_list[pair_list[i][k]]
+# 					x_CM = 0.5*( xQ + xQbar )
+# 					
+# 					# momenta
+# 					pQ = self.Qlist['4-momentum'][i]
+# 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
+# 					
+# 					# CM momentum and velocity
+# 					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+# 
+# 					# calculate the final quarkonium momenta in the CM frame of QQbar
+# 					tempmomentum_U1S = np.array(self.event.sample_S1S_reco_gluon(v_CM_abs, self.T, p_rel_abs))
+# 					# need to rotate the vector, v is not the z axis in box frame
+# 					theta_rot, phi_rot = LorRot.angle(v_CM)
+# 					rotmomentum_U1S = LorRot.rotation4(tempmomentum_U1S, theta_rot, phi_rot)
+# 					# lorentz back to the box frame
+# 					momentum_U1S = LorRot.lorentz( rotmomentum_U1S, -v_CM )
+# 					# positions of the quarkonium
+# 					position_U1S = x_CM%self.Lmax
+# 					
+# 					# update the quarkonium list
+# 					if len_U1S == 0:
+# 						self.U1Slist['4-momentum'] = np.array([momentum_U1S])
+# 						self.U1Slist['3-position'] = np.array([position_U1S])
+# 						self.U1Slist['last_form_time'] = np.array(self.t)
+# 					else:
+# 						self.U1Slist['4-momentum'] = np.append(self.U1Slist['4-momentum'], [momentum_U1S], axis=0)
+# 						self.U1Slist['3-position'] = np.append(self.U1Slist['3-position'], [position_U1S], axis=0)
+# 						self.U1Slist['last_form_time'] = np.append(self.U1Slist['last_form_time'], self.t)
+
+				elif rej_mc <= total_prob_reco_gluon + total_prob_reco_ineq:
 					delete_Q.append(i)		# remove this Q later
 					# find the Qbar we need to remove
-					a = 0.0
+					a = total_prob_reco_gluon
 					for j in range(len_recoQbar):
-						if a <= reject_prob <= a + reco_prob[j]:
+						if a <= rej_mc <= a + prob_reco_ineq[j]:
 							k = j
 							break
-						a += reco_prob[j]
+						a += prob_reco_ineq[j]
 					delete_Qbar.append(pair_list[i][k]%len_Qbar)
 					
 					# re-construct the reco event and sample initial and final states
 					# positions and local temperature
 					xQ = self.Qlist['3-position'][i]
-					xQbar = self.Qbarlist['3-position'][pair_list[i][k]]
+					xQbar = Qbar_x_list[pair_list[i][k]]
 					x_CM = 0.5*( xQ + xQbar )
 					
 					# momenta
@@ -339,34 +392,14 @@ class QQbar_evol:
 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
 					
 					# CM momentum and velocity
-					p_CM = pQ[1:] + pQbar[1:]		# M_tot = 2M
-					p_CM_sqd = np.sum(p_CM**2)
-					E_CM = np.sqrt(p_CM_sqd + (2.*M)**2)
-					v_CM_abs = np.sqrt(p_CM_sqd)/E_CM
-					v_CM = p_CM/E_CM
-						
-					# viewed in the CM frame
-					pQ_CM = LorRot.lorentz(pQ, v_CM)
-					pQbar_CM = LorRot.lorentz(pQbar, v_CM)
-						
-					# relative momentum inside CM frame
-					p_rel = 0.5*(pQ_CM - pQbar_CM)
-					p_rel_abs = np.sqrt(np.sum(p_rel**2))
-				
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
 					# calculate the final quarkonium momenta in the CM frame of QQbar
-					q_U1S, costhetaU, phiU = self.rates.pyreco_sample_1S_final(v_CM_abs, self.T, p_rel_abs)
-					sinthetaU = np.array(1.0-costhetaU**2)
-					# get the 3-component of U1S momentum, where v_CM = z axis
-					tempmomentum_U = np.array([q_U1S*sinthetaU*np.cos(phiU), q_U1S*sinthetaU*np.sin(phiU), q_U1S*costhetaU])
-					E_U1S = np.sqrt( np.sum(tempmomentum_U**2)+M_1S**2 )
-					
+					tempmomentum_U1S = np.array(self.event.sample_S1S_reco_ineq(v_CM_abs, self.T, p_rel_abs))
 					# need to rotate the vector, v is not the z axis in box frame
 					theta_rot, phi_rot = LorRot.angle(v_CM)
-					rotmomentum_U = LorRot.rotation(tempmomentum_U, theta_rot, phi_rot)
-
+					rotmomentum_U1S = LorRot.rotation4(tempmomentum_U1S, theta_rot, phi_rot)
 					# lorentz back to the box frame
-					momentum_U1S = LorRot.lorentz( np.append(E_U1S, rotmomentum_U), -v_CM )
-					
+					momentum_U1S = LorRot.lorentz( rotmomentum_U1S, -v_CM )
 					# positions of the quarkonium
 					position_U1S = x_CM%self.Lmax
 					
@@ -379,7 +412,7 @@ class QQbar_evol:
 						self.U1Slist['4-momentum'] = np.append(self.U1Slist['4-momentum'], [momentum_U1S], axis=0)
 						self.U1Slist['3-position'] = np.append(self.U1Slist['3-position'], [position_U1S], axis=0)
 						self.U1Slist['last_form_time'] = np.append(self.U1Slist['last_form_time'], self.t)
-						
+ 						
 			## now update Q and Qbar lists
 			self.Qlist['4-momentum'] = np.delete(self.Qlist['4-momentum'], delete_Q, axis=0)
 			self.Qlist['3-position'] = np.delete(self.Qlist['3-position'], delete_Q, axis=0)
@@ -418,3 +451,116 @@ class QQbar_evol:
 
 		self.t += dt
 #### ----------------- end of evolution function ----------------- ####
+
+
+
+
+
+#### -------------------- test gluon recombination -------------------- ####
+	def test_reco_gluon(self):
+		len_Q = len(self.Qlist['4-momentum'])
+		len_Qbar = len(self.Qbarlist['4-momentum'])
+		
+		total_rate_reco_gluon = 0.0
+		
+		# make the periodic box 26 times bigger!
+		Qbar_x_list = np.concatenate((self.Qbarlist['3-position'], 
+		self.Qbarlist['3-position']+[0.0, 0.0, self.Lmax], self.Qbarlist['3-position']+[0.0, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, 0.0], self.Qbarlist['3-position']+[0.0, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, 0.0], self.Qbarlist['3-position']+[-self.Lmax, 0.0, 0.0],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, 0.0, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, self.Lmax],
+		self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, -self.Lmax]),
+		axis = 0 )
+			
+		pair_search = cKDTree(Qbar_x_list)
+		# for each Q, obtain the Qbar indexes within R_search
+		pair_list = pair_search.query_ball_point(self.Qlist['3-position'], r = R_search)
+		
+		for i in range(len_Q):
+			len_recoQbar = len(pair_list[i])
+			rate_reco_gluon = []
+			for j in range(len_recoQbar):		# loop over Qbar within R_search
+				xQ = self.Qlist['3-position'][i]
+				xQbar = Qbar_x_list[pair_list[i][j]]
+				x_rel = xQ - xQbar
+				i_Qbar_mod = pair_list[i][j]%len_Qbar	# use for momentum and delete_index
+				rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
+					
+				if  rdotp < 0.0:
+					r_rel = np.sqrt(np.sum(x_rel**2))
+					x_CM = 0.5*( xQ + xQbar )
+					
+					# momenta in the static medium frame
+					pQ = self.Qlist['4-momentum'][i]
+					pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
+						
+					# CM momentum and velocity
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					
+					# the factor of 2 is to account the theta function renormalization					
+					rate_reco_gluon.append(2.0*self.event.get_R1S_reco_gluon(v_CM_abs, self.T, p_rel_abs, r_rel))
+			
+			rate_reco_gluon = np.array(rate_reco_gluon)
+			total_rate_reco_gluon += np.sum(rate_reco_gluon)
+		
+		return total_rate_reco_gluon/len_Q
+			
+			
+			
+#### -------------------- test ineq recombination -------------------- ####
+	def test_reco_ineq(self):
+		len_Q = len(self.Qlist['4-momentum'])
+		len_Qbar = len(self.Qbarlist['4-momentum'])
+		
+		total_rate_reco_ineq = 0.0
+		
+		# make the periodic box 26 times bigger!
+		Qbar_x_list = np.concatenate((self.Qbarlist['3-position'], 
+		self.Qbarlist['3-position']+[0.0, 0.0, self.Lmax], self.Qbarlist['3-position']+[0.0, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, 0.0], self.Qbarlist['3-position']+[0.0, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, 0.0], self.Qbarlist['3-position']+[-self.Lmax, 0.0, 0.0],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, 0.0, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, self.Lmax],
+		self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, -self.Lmax]),
+		axis = 0 )
+			
+		pair_search = cKDTree(Qbar_x_list)
+		# for each Q, obtain the Qbar indexes within R_search
+		pair_list = pair_search.query_ball_point(self.Qlist['3-position'], r = R_search)
+		
+		for i in range(len_Q):
+			len_recoQbar = len(pair_list[i])
+			rate_reco_gluon = []
+			for j in range(len_recoQbar):		# loop over Qbar within R_search
+				xQ = self.Qlist['3-position'][i]
+				xQbar = Qbar_x_list[pair_list[i][j]]
+				x_rel = xQ - xQbar
+				i_Qbar_mod = pair_list[i][j]%len_Qbar	# use for momentum and delete_index
+				#rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
+					
+				r_rel = np.sqrt(np.sum(x_rel**2))
+				x_CM = 0.5*( xQ + xQbar )
+					
+				# momenta in the static medium frame
+				pQ = self.Qlist['4-momentum'][i]
+				pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
+						
+				# CM momentum and velocity
+				v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					
+				# the factor of 2 is to account the theta function renormalization					
+				rate_reco_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, self.T, p_rel_abs, r_rel))
+			
+			rate_reco_ineq = np.array(rate_reco_ineq)
+			total_rate_reco_ineq += np.sum(rate_reco_ineq)
+		
+		return total_rate_reco_ineq/len_Q		
+			
+			
+			
+		

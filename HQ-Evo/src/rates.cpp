@@ -423,7 +423,7 @@ void rates_2to3::read_from_file(std::string filename, std::string datasetname){
 }
 
 void rates_2to3::tabulate_E1_T(size_t T_start, size_t dnT){
-	double * arg = new double[2];
+	double * arg = new double[3];
 	for (size_t i=0; i<NE1; i++){
 		arg[0] = E1L + i*dE1;
 		for (size_t j=T_start; j<(T_start+dnT); j++){
@@ -607,7 +607,7 @@ void rates_3to2::read_from_file(std::string filename, std::string datasetname){
 }
 
 void rates_3to2::tabulate_E1_T(size_t T_start, size_t dnT){
-	double * arg = new double[2];
+	double * arg = new double[3];
 	for (size_t i=0; i<NE1; i++){
 		arg[0] = E1L + i*dE1;
 		for (size_t j=T_start; j<(T_start+dnT); j++){
