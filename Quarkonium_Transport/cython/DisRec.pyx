@@ -30,6 +30,13 @@ cdef extern from "../src/DisRec.h":
 	cdef vector[double] S1S_decay_ineq(double v, double T)
 	cdef vector[double] S1S_decay_ineq_test(double v, double T)
 	
+	# function related to inelastic gluon decay rate
+	cdef double R1S_decay_ineg(double v, double T)
+	
+	# function related to inelastic gluon decay sampling
+	cdef vector[double] S1S_decay_ineg(double v, double T)
+	cdef vector[double] S1S_decay_ineg_test(double v, double T)
+		
 	# function related to real gluon recombine rate
 	cdef double RV1S_reco_gluon(double v, double T, double p)
 	cdef double dist_position(double r)
@@ -44,15 +51,19 @@ cdef extern from "../src/DisRec.h":
 	cdef vector[double] S1S_reco_ineq(double v, double T, double p)
 	cdef vector[double] S1S_reco_ineq_test(double v, double T, double p)
 	
+	# function related to inelastic gluon recombine rate
+	cdef double RV1S_reco_ineg(double v, double T, double p)
+	
+	# function related to inelastic gluon recombine sampling
+	cdef vector[double] S1S_reco_ineg(double v, double T, double p)
+	cdef vector[double] S1S_reco_ineg_test(double v, double T, double p)
+	
 	# small v cut
 	cdef double small_number
 	
 	# convert p3 to p4
 	cdef vector[double] p3top4_Q(vector[double] p3)
 	cdef vector[double] p3top4_quarkonia(vector[double] p3)
-	
-	# lorentz_transform
-	#cdef vector[double] lorentz_transform(vector[double] momentum_4, vector[double] velocity_3)
 
 	
 cdef extern from "../src/utility.h":
@@ -62,7 +73,7 @@ cdef extern from "../src/utility.h":
 # Provide a direct python wrapper for these functions for tests
 def pyE1S():
 	return E1S
-
+#------------------------------- rates -----------------------------
 def pyR1S_decay_gluon(double vabs, double T):
 	return R1S_decay_gluon(vabs, T)
 
@@ -75,14 +86,22 @@ def pydRdq_1S_gluon(double q, double v, double T):
 	return dRdq_1S_gluon(q, params)
 
 def pyR1S_decay_ineq(double vabs, double T):
+	result = R1S_decay_ineq(vabs, T)
 	return R1S_decay_ineq(vabs, T)
-	
+
+def pyR1S_decay_ineg(double vabs, double T):
+	return R1S_decay_ineg(vabs, T)
+		
 def pyRV1S_reco_gluon(double vabs, double T, double p_rel):
 	return RV1S_reco_gluon(vabs, T, p_rel)
 
 def pyRV1S_reco_ineq(double vabs, double T, double p_rel):
 	return RV1S_reco_ineq(vabs, T, p_rel)
-
+	
+def pyRV1S_reco_ineg(double vabs, double T, double p_rel):
+	return RV1S_reco_ineg(vabs, T, p_rel)
+	
+#---------------------------- sampling -----------------------------
 def pyS1S_reco_gluon(double v, double T, double p_rel):
 	p1S = np.array(S1S_reco_gluon(v, T, p_rel))
 	return p1S
@@ -108,14 +127,22 @@ def pyS1S_decay_ineq_cos1(double p1, double v, double T):
 def pyS1S_decay_ineq_test(double v, double T):
 	return S1S_decay_ineq_test(v, T)
 
+def pyS1S_decay_ineg_test(double v, double T):
+	return S1S_decay_ineg_test(v, T)
+	
 def pyS1S_reco_ineq_test(double v, double T, double p):
 	return S1S_reco_ineq_test(v, T, p)
 
+def pyS1S_reco_ineg_test(double v, double T, double p):
+	return S1S_reco_ineg_test(v, T, p)
+	
 pyR1S_decay_gluon = np.vectorize(pyR1S_decay_gluon)
 pydRdq_1S_gluon = np.vectorize(pydRdq_1S_gluon)
 pyR1S_decay_ineq = np.vectorize(pyR1S_decay_ineq)
+pyR1S_decay_ineg = np.vectorize(pyR1S_decay_ineg)
 pyRV1S_reco_gluon = np.vectorize(pyRV1S_reco_gluon)
 pyRV1S_reco_ineq = np.vectorize(pyRV1S_reco_ineq)
+pyRV1S_reco_ineg = np.vectorize(pyRV1S_reco_ineg)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -178,9 +205,11 @@ cdef class DisRec(object):
 	cdef size_t N_v, N_T, N_p_rel
 	cdef np.ndarray T_R1S_decay_gluon
 	cdef np.ndarray T_R1S_decay_ineq
+	cdef np.ndarray T_R1S_decay_ineg
 	cdef np.ndarray T_qdRdq_1S_gluon_max
 	cdef np.ndarray T_RV1S_reco_gluon
 	cdef np.ndarray T_RV1S_reco_ineq
+	cdef np.ndarray T_RV1S_reco_ineg
 	
 	def __cinit__(self, table_folder='tables', overwrite=False):
 		if not os.path.exists(table_folder):
@@ -206,12 +235,16 @@ cdef class DisRec(object):
 			print ("loading Upsilon(1S)+q <-> b+bbar+q rate table")
 			self.T_R1S_decay_ineq = gp['R1S_decay_ineq'].value
 			self.T_RV1S_reco_ineq = gp['RV1S_reco_ineq'].value
+			
+			print ("loading Upsilon(1S)+g <-> b+bbar+g rate table")
+			self.T_R1S_decay_ineg = gp['R1S_decay_ineg'].value
+			self.T_RV1S_reco_ineg = gp['RV1S_reco_ineg'].value
 		else:
 			if gpname in f:
 				del f[gpname]
 			gp = f.create_group(gpname)
 			self.vmin = 0.01; self.vmax = 0.999; self.N_v = 50
-			self.Tmin = 0.15; self.Tmax = 0.5; self.N_T = 30
+			self.Tmin = 0.15; self.Tmax = 0.6; self.N_T = 30
 			# here we use p_rel in GeV, the 4.0 and 8.6 are for MeV; ln(1000)=6.9
 			self.p_rel_log_min = 4.0-6.9; self.p_rel_log_max = 8.6-6.9; self.N_p_rel = 50
 
@@ -232,23 +265,31 @@ cdef class DisRec(object):
 			# inelastic quark dissociation
 			print ("generating Upsilon(1S)+q -> b+bbar+q rate table")
 			self.T_R1S_decay_ineq = np.transpose(pyR1S_decay_ineq(grid_v, grid_T))
-			
+			# inelastic gluon dissociation
+			print ("generating Upsilon(1S)+g -> b+bbar+g rate table")
+			self.T_R1S_decay_ineg = np.transpose(pyR1S_decay_ineg(grid_v, grid_T))
+						
 			## Initialize recombination rate*vol table
 			# gluon-recombination
 			print ("generating b+bbar -> Upsilon(1S)+g rate*vol table, vol in fm^3")
 			p_relarray = np.exp( np.linspace(self.p_rel_log_min, self.p_rel_log_max, self.N_p_rel) )
 			grd_v, grd_T, grd_p_rel = np.meshgrid(varray, Tarray, p_relarray)
 			self.T_RV1S_reco_gluon = pyRV1S_reco_gluon(grd_v, grd_T, grd_p_rel).transpose(1,0,2)
-			# inelastic gluon dissociation
+			# inelastic quark dissociation
 			print ("generating b+bbar+q -> Upsilon(1S)+q rate*vol table, vol in fm^3")
 			self.T_RV1S_reco_ineq = pyRV1S_reco_ineq(grd_v, grd_T, grd_p_rel).transpose(1,0,2)
-			
+			# inelastic gluon dissociation
+			print ("generating b+bbar+g -> Upsilon(1S)+g rate*vol table, vol in fm^3")
+			self.T_RV1S_reco_ineg = pyRV1S_reco_ineg(grd_v, grd_T, grd_p_rel).transpose(1,0,2)
+						
 			## store the disso and reco rates in datasets
 			gp.create_dataset('R1S_decay_gluon', data=self.T_R1S_decay_gluon)
 			gp.create_dataset('R1S_decay_ineq', data=self.T_R1S_decay_ineq)
+			gp.create_dataset('R1S_decay_ineg', data=self.T_R1S_decay_ineg)
 			gp.create_dataset('qdRdq_1S_gluon_max', data=self.T_qdRdq_1S_gluon_max)
 			gp.create_dataset('RV1S_reco_gluon', data = self.T_RV1S_reco_gluon)
 			gp.create_dataset('RV1S_reco_ineq', data = self.T_RV1S_reco_ineq)
+			gp.create_dataset('RV1S_reco_ineg', data = self.T_RV1S_reco_ineg)
 			gp.attrs.create('v-min-max-N', 
 							np.array([self.vmin, self.vmax, self.N_v]))
 			gp.attrs.create('T-min-max-N', 
@@ -280,7 +321,13 @@ cdef class DisRec(object):
 		return interp2d(self.T_R1S_decay_ineq, v, T, 
 						self.vmin, self.vmax, self.dv, self.N_v,
 						self.Tmin, self.Tmax, self.dT, self.N_T)
-	
+
+	# 1S inelastic gluon dissociation
+	cpdef get_R1S_decay_ineg(self, double v, double T):
+		return interp2d(self.T_R1S_decay_ineg, v, T, 
+						self.vmin, self.vmax, self.dv, self.N_v,
+						self.Tmin, self.Tmax, self.dT, self.N_T)
+							
 	# 1S gluon recombination
 	cpdef get_R1S_reco_gluon(self, double v, double T, double p_rel, double r):
 		small_number = 0.000001		# add this small number to p_rel in case p_rel = 0
@@ -299,7 +346,16 @@ cdef class DisRec(object):
 									self.Tmin, self.Tmax, self.dT, self.N_T,
 									self.p_rel_log_min, self.p_rel_log_max, self.dp_rel, self.N_p_rel)
 		return Rvol * dist_position(r)	
-			
+
+	# 1S inelastic gluon recombination
+	cpdef get_R1S_reco_ineg(self, double v, double T, double p_rel, double r):
+		small_number = 0.000001		# add this small number to p_rel in case p_rel = 0
+		cdef double Rvol = interp3d(self.T_RV1S_reco_ineg, v, T, np.log(p_rel+small_number),
+									self.vmin, self.vmax, self.dv, self.N_v,
+									self.Tmin, self.Tmax, self.dT, self.N_T,
+									self.p_rel_log_min, self.p_rel_log_max, self.dp_rel, self.N_p_rel)
+		return Rvol * dist_position(r)	
+					
 	##----------------- define function that can be called to sample ------------------##
 	# 1S gluon dissociation		
 	cpdef vector[double] sample_S1S_decay_gluon(self, double v, double T):
@@ -316,7 +372,15 @@ cdef class DisRec(object):
 		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
 		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
 		return np.concatenate((pQ, pQbar), axis=0)
-			
+
+	# 1S inelastic gluon dissociation
+	cpdef vector[double] sample_S1S_decay_ineg(self, double v, double T):
+		cdef vector[double] pQpQbar, pQ, pQbar
+		pQpQbar = S1S_decay_ineg(v, T)
+		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
+		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
+		return np.concatenate((pQ, pQbar), axis=0)
+					
 	# 1S gluon recombination
 	cpdef vector[double] sample_S1S_reco_gluon(self, double v, double T, double p_rel):
 		cdef vector[double] p1S
@@ -329,3 +393,8 @@ cdef class DisRec(object):
 		p1S = S1S_reco_ineq(v, T, p_rel)
 		return np.array(p3top4_quarkonia(p1S))	# convert p3 to p4
 
+	# 1S inelastic gluon recombination
+	cpdef vector[double] sample_S1S_reco_ineg(self, double v, double T, double p_rel):
+		cdef vector[double] p1S
+		p1S = S1S_reco_ineg(v, T, p_rel)
+		return np.array(p3top4_quarkonia(p1S))	# convert p3 to p4

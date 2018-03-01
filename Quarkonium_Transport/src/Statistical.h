@@ -8,7 +8,8 @@
 
 // static and moving frame statistical
 double nB(double x){
-    return 1./(std::exp(x)-1.);
+    double exp_factor = std::exp(-x);
+    return exp_factor/(1.0 - exp_factor);
 }
 
 double nBplus1(double x){
@@ -16,7 +17,8 @@ double nBplus1(double x){
 }
 
 double nF(double x){
-    return 1./(std::exp(x)+1.);
+    double exp_factor = std::exp(-x);
+    return exp_factor/(1.0 + exp_factor);
 }
 
 double nFminus1(double x){

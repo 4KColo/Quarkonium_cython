@@ -89,8 +89,8 @@ double find_root(double(*f)(double x, void * params), double result, void * para
 double Matrix1S(double p){
     double eta = Matrix1S_scale/(p+small_number);
     double x = a_B * p;
-    double Numerator = Matrix1S_prefactor*eta*(rho_c_sq+x*x)*std::exp(4.0*eta*std::atan(x));
-    double Denominator = pow(1.0+x*x, 6) * ( std::exp(TwoPi*eta) - 1.0 );
+    double Numerator = Matrix1S_prefactor*eta*(rho_c_sq+x*x)*std::exp(4.0*eta*std::atan(x)-TwoPi*eta);
+    double Denominator = pow(1.0+x*x, 6) * ( 1.0 - std::exp(-TwoPi*eta) );
     return Numerator/Denominator;
 }
 
@@ -110,7 +110,7 @@ double Xsec1S(double q){
     double t1 = std::sqrt(q/E1S - 1.);
     double x = rho_c/t1;
     return Xsec1S_prefactor/pow(q, 5) * (t1*t1 + rho_c_sq)
-    * std::exp(4.*x*std::atan(t1)) / (std::exp(TwoPi*x) - 1.);
+    * std::exp(4.*x*std::atan(t1) - TwoPi*x) / (1.0 - std::exp(-TwoPi*x));
 }
 //second one
 double Xsec1S_v2(double q){
@@ -203,7 +203,7 @@ double S1S_decay_gluon_costheta(double q, double v, double T){
     double low = fac1(coeff*(1.-v));
     double norm = fac1(coeff*(1.+v))-low;
     double y_fac1 = y_cdf(gen)*norm + low;
-    return ( -std::log(1. - std::exp(y_fac1))/coeff - 1. )/v;
+    return -(1. + std::log(1. - std::exp(y_fac1))/coeff )/v;
 }
 
 // return the final relative momentum between Q-Qbar pair
@@ -234,47 +234,45 @@ std::vector<double> S1S_decay_gluon(double v, double T, double maximum){
 double dRdp1dp2_1S_decay_ineq(double x[5], size_t dim, void * params_){
     double p1 = x[0];
     double c1 = x[1];
-    double p2 = x[2];
+    double Prel = x[2];
     double c2 = x[3];
     double phi = x[4];
+    double p2 = p1 - E1S - Prel*Prel/M;
     double * params = static_cast<double *>(params_);
     double v = params[0];
     double T = params[1];
-    if (p1-p2 < E1S){
+    if (p2 <= 0.0){
         return 0.0;
     }
     else{
         double gamma = 1./std::sqrt(1.-v*v);
-        double p0 = std::sqrt((p1-p2-E1S)*M);
         double s1 = std::sqrt(1.-c1*c1);
         double s2 = std::sqrt(1.-c2*c2);
         double phase1 = p1*nF(gamma*p1*(1.+v*c1)/T);
-        double phase2 = p2*(1.-nF(gamma*p2*(1.+v*c2)/T));
+        double phase2 = p2*nFminus1(gamma*p2*(1.+v*c2)/T);
         double part_angle = s1*s2*std::cos(phi)+c1*c2;
         double prop = p1*p2*(1.+part_angle)/( p1*p1+p2*p2-2.*p1*p2*part_angle );
-        return phase1 * phase2 * p0 * Matrix1S(p0) * prop;
+        return phase1 * phase2 * Prel*Prel * Matrix1S(Prel) * prop;
         // omit a prefactor and a 1/gamma, add them in the rate calculation: R1S_decay_ineq
     }
 }
 double R1S_decay_ineq(double v, double T){
-    v = std::max(v, small_number);
     double gamma_inv = std::sqrt(1.-v*v);
     double * params = new double[2];
     params[0] = v;
     params[1] = T;
     double result, error;
-    double p1up = 18.*T/std::sqrt(1.-v);
-    double p2up = p1up - E1S;
+    double p1up = 15.*T/std::sqrt(1.-v);
     double xl[5] = { E1S, -1., 0., -1., 0. };
-    double xu[5] = { p1up, 1., p2up, 1., TwoPi };
+    double xu[5] = { p1up, 1., 3.0, 1., TwoPi };
     gsl_monte_function F;
     F.f = &dRdp1dp2_1S_decay_ineq;
     F.dim = 5;
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdp1dp2_1S_decay_prefactor * gamma_inv;
@@ -339,8 +337,7 @@ double S1S_decay_ineq_cos1(double p1, void * params_){
     double v = params[0];
     double B = params[1]*p1;    // B = gamma * p1/T
     double C = y_try * fac2(B*(1.+v)) + (1.-y_try) * fac2(B*(1.-v));
-    double x_try = -(1. + std::log(std::exp(C) - 1.)/B )/v;
-    return x_try;
+    return -(1. + std::log(std::exp(C) - 1.)/B )/v;
 }
 
 
@@ -349,7 +346,7 @@ std::vector<double> S1S_decay_ineq(double v, double T){
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
     double p1low = E1S;
-    double p1up = 18.*T/std::sqrt(1.-v);
+    double p1up = 15.*T/std::sqrt(1.-v);
     
     double * params_p1 = new double[2];
     params_p1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
@@ -382,7 +379,7 @@ std::vector<double> S1S_decay_ineq(double v, double T){
             part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
             result_try = (1.+part_angle)/(p1p2 + 1./p1p2 - 2.*part_angle)/2.0*(p1p2 + 1./p1p2 - 2.0) * nFminus1(gamma*(1.+v*c2_try)*p2_try/T)/p1p2_try;
         }
-    } while(rejection(gen) > result_try);
+    } while(rejection(gen) >= result_try);
     std::vector<double> p1_final(3);
     std::vector<double> p2_final(3);
     std::vector<double> p_rel_final(3);
@@ -403,7 +400,7 @@ std::vector<double> S1S_decay_ineq_test(double v, double T){
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
     double p1low = E1S;
-    double p1up = 18.*T/std::sqrt(1.-v);
+    double p1up = 15.*T/std::sqrt(1.-v);
 
     double * params_p1 = new double[2];
     params_p1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
@@ -436,7 +433,7 @@ std::vector<double> S1S_decay_ineq_test(double v, double T){
         part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
         result_try = (1.+part_angle)/(p1p2_try + 1./p1p2_try - 2.*part_angle)/2.0*(p1p2 + 1./p1p2 - 2.0) * nFminus1(gamma*(1.+v*c2_try)*p2_try/T)/p1p2_try;
         }
-    } while(rejection(gen) > result_try);
+    } while(rejection(gen) >= result_try);
 
     std::vector<double> p1p2_test(5);
     p1p2_test[0] = p1_try;
@@ -446,14 +443,209 @@ std::vector<double> S1S_decay_ineq_test(double v, double T){
     p1p2_test[4] = phi_try;
     return p1p2_test;
 }
-//------------------------ end of inelastic quark dissociation -----------------------
+//--------------------end of inelastic quark dissociation -------------------
 
 
-//-------------------------- end of Quarkonium dissociation -----------------------
+//---------------------- inelastic gluon dissociation -----------------------
+// first define integrand
+double dRdq1dq2_1S_decay_ineg(double x[5], size_t dim, void * params_){
+    // do a change of variable from p2 to Prel
+    double q1 = x[0];
+    double c1 = x[1];
+    double Prel = x[2];
+    double c2 = x[3];
+    double phi = x[4];
+    double q2 = q1 - E1S - Prel*Prel/M;
+    double * params = static_cast<double *>(params_);
+    double v = params[0];
+    double T = params[1];
+    if (q2 <= 0.0){
+        return 0.0;
+    }
+    else{
+        double gamma = 1./std::sqrt(1.-v*v);
+        double s1 = std::sqrt(1.-c1*c1);
+        double s2 = std::sqrt(1.-c2*c2);
+        double phase1 = q1*nB(gamma*q1*(1.+v*c1)/T);
+        double phase2 = q2*nBplus1(gamma*q2*(1.+v*c2)/T);
+        double part_angle = s1*s2*std::cos(phi)+c1*c2;
+        double q1q2sum = q1+q2;
+        double prop = q1q2sum*q1q2sum*(1.+part_angle)/( q1*q1+q2*q2-2.*q1*q2*part_angle );
+        return phase1 * phase2 * Prel*Prel * Matrix1S(Prel) * prop;
+        // omit a prefactor and a 1/gamma, add them in the rate calculation: R1S_decay_ineq
+    }
+}
+// calculate the inelastic gluon decay rate
+double R1S_decay_ineg(double v, double T){
+    double gamma_inv = std::sqrt(1.-v*v);
+    double * params = new double[2];
+    params[0] = v;
+    params[1] = T;
+    double result, error;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double xl[5] = { E1S, -1., 0., -1., 0. };
+    double xu[5] = { q1up, 1., 3.0, 1., TwoPi };
+    gsl_monte_function F;
+    F.f = &dRdq1dq2_1S_decay_ineg;
+    F.dim = 5;
+    F.params = params;
+    gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
+    gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
+    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    delete [] params;
+    gsl_monte_vegas_free(w);
+    return result * dRdq1dq2_1S_decay_prefactor * gamma_inv;
+}
+
+// now sampling the ineg process:
+// used in importance sampling of q1
+double f_q1_decay_important(double q1, void * params_){
+    double * params = static_cast<double *>(params_);
+    double k1 = params[0];  // k1 = gamma*(1-v)/T
+    double k2 = params[1];  // k2 = gamma*(1+v)/T
+    double q2 = q1-E1S;
+    if (q2 <= 0){
+        return 0.0;
+    }
+    else{
+        double q1q2 = q1/q2;
+        return ( fac1(k2*q1) - fac1(k1*q1) ) * q1 * ( 1.0 + 4./(q1q2 + 1./q1q2 -2.0) );
+    }
+}
+
+// inverse function method to sample q1
+double S1S_decay_ineg_q1_important(double q1low, double q1up, void * params_){
+    double * params = static_cast<double *>(params_);
+    double result_max = find_max(&f_q1_decay_important, params, q1low, q1up);
+    double result_try, q1_try;
+    do{
+        q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
+        result_try = f_q1_decay_important(q1_try, params);
+    } while(rejection(gen)*result_max > result_try);
+    return q1_try;
+}
+
+double S1S_decay_ineg_cos1(double q1, void * params_){
+    double * params = static_cast<double *>(params_);
+    double y_try = y_cdf(gen);
+    double v = params[0];
+    double B = params[1]*q1;    // B = gamma * q1/T
+    double C = y_try * fac1(B*(1.+v)) + (1.-y_try) * fac1(B*(1.-v));
+    return -(1. + std::log( 1.-std::exp(C) )/B )/v;
+}
+
+std::vector<double> S1S_decay_ineg(double v, double T){
+    v = std::max(v, small_number);
+    double gamma = 1./std::sqrt(1.-v*v);
+    double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
+    double q1low = E1S;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double result_max = T/E1S/gamma/(1.-v);
+    
+    double * params_q1 = new double[2];
+    params_q1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
+    params_q1[1] = gamma*(1.+v)/T; //k2 = gamma*(1+v)/T
+    
+    double * params_c1 = new double[2];
+    params_c1[0] = v;
+    params_c1[1] = gamma/T;
+    
+    do{
+        do{
+            p_rel = sample_inel(gen)*3.0;
+        } while(rejection(gen)*max_p2Matrix > p2Matrix1S(p_rel));
+        
+        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q2_try = q1_try - E1S - p_rel*p_rel/M;
+        if (q2_try <= 0.0){
+            result_try = 0.0;
+        }
+        else{
+            c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
+            c2_try = sample_cos(gen);
+            s1_try = std::sqrt(1.-c1_try*c1_try);
+            s2_try = std::sqrt(1.-c2_try*c2_try);
+            phi_try = sample_inel(gen)*TwoPi;
+            q1q2_try = q1_try/q2_try;   // q1_try/q2_try
+            q1q2 = (q1_try-E1S)/q1_try;
+            c_phi = std::cos(phi_try);
+            s_phi = std::sin(phi_try);
+            part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
+            result_try = nBplus1(gamma*(1.+v*c2_try)*q2_try/T)/q1q2_try * (q1q2_try  + 1./q1q2_try + 2.0)/(q1q2_try + 1./q1q2_try - 2.0*part_angle) * (1.+part_angle)/2.0 / (1.0 + 4./(q1q2 + 1./q1q2 - 2.0) );
+        }
+    } while(rejection(gen)*result_max >= result_try);
+    std::vector<double> q1_final(3);
+    std::vector<double> q2_final(3);
+    std::vector<double> p_rel_final(3);
+    std::vector<double> pQpQbar_final(6);
+    double cos_rel, phi_rel;
+    cos_rel = sample_cos(gen);
+    phi_rel = sample_inel(gen)*TwoPi;
+    q1_final = polar_to_cartisian2(q1_try, c1_try, s1_try, 1.0, 0.0);
+    q2_final = polar_to_cartisian2(q2_try, c2_try, s2_try, c_phi, s_phi);
+    p_rel_final = polar_to_cartisian1(p_rel, cos_rel, phi_rel);
+    pQpQbar_final = add_virtual_gluon(q1_final, q2_final, p_rel_final);
+    return pQpQbar_final;
+}
+
+std::vector<double> S1S_decay_ineg_test(double v, double T){
+    v = std::max(v, small_number);
+    double gamma = 1./std::sqrt(1.-v*v);
+    double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
+    double q1low = E1S;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double result_max = T/E1S/gamma/(1.-v);
+    
+    double * params_q1 = new double[2];
+    params_q1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
+    params_q1[1] = gamma*(1.+v)/T; //k2 = gamma*(1+v)/T
+    
+    double * params_c1 = new double[2];
+    params_c1[0] = v;
+    params_c1[1] = gamma/T;
+    
+    do{
+        do{
+            p_rel = sample_inel(gen)*3.0;
+        } while(rejection(gen)*max_p2Matrix > p2Matrix1S(p_rel));
+        
+        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q2_try = q1_try - E1S - p_rel*p_rel/M;
+        if (q2_try <= 0.0){
+            result_try = 0.0;
+        }
+        else{
+            c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
+            c2_try = sample_cos(gen);
+            s1_try = std::sqrt(1.-c1_try*c1_try);
+            s2_try = std::sqrt(1.-c2_try*c2_try);
+            phi_try = sample_inel(gen)*TwoPi;
+            q1q2_try = q1_try/q2_try;   // q1_try/q2_try
+            q1q2 = (q1_try-E1S)/q1_try;
+            c_phi = std::cos(phi_try);
+            s_phi = std::sin(phi_try);
+            part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
+            result_try = nBplus1(gamma*(1.+v*c2_try)*q2_try/T)/q1q2_try * (q1q2_try  + 1./q1q2_try + 2.0)/(q1q2_try + 1./q1q2_try - 2.0*part_angle) * (1.+part_angle)/2.0 / (1.0 + 4./(q1q2 + 1./q1q2 - 2.0) );
+        }
+    } while(rejection(gen)*result_max >= result_try);
+    std::vector<double> q1q2_test(5);
+    q1q2_test[0] = q1_try;
+    q1q2_test[1] = c1_try;
+    q1q2_test[2] = q2_try;
+    q1q2_test[3] = c2_try;
+    q1q2_test[4] = phi_try;
+    return q1q2_test;
+}
+//------------------- end of inelastic gluon dissociation -------------------
 
 
 
-// ----------------------- Quark and anti-quark recombination ------------------------------
+//--------------------------------------------------- end of Quarkonium dissociation ----------------------------------------------------------
+
+
+
+// ------------------------------------------------- Quark and anti-quark recombination --------------------------------------------------------
 //---------------------- gluon induced recombination -----------------------
 // we define rate * vol (RV) = v_rel * cross section in GeV*fm^3; p is the QQbar relative momentum
 // rate * vol for a specific color, no summation over colors
@@ -508,7 +700,7 @@ std::vector<double> S1S_reco_gluon(double v, double T, double p){
     p1S_final = subtract_real_gluon( p1S_final );
     return p1S_final;
 }
-//---------------------- end of gluon induced recombination -----------------------
+//------------------- end of gluon induced recombination ---------------------
 
 
 //---------------------- inelastic quark recombination -----------------------
@@ -530,7 +722,7 @@ double dRdp1dp2_1S_reco_ineq(double x[4], size_t dim, void * params_){
     double phase2 = p2*(1.-nF(gamma*p2*(1.+v*c2)/T));
     double part_angle = s1*s2*std::cos(phi)+c1*c2;
     double prop = p1*p2*(1.+part_angle)/( p1*p1+p2*p2-2.*p1*p2*part_angle );
-    return phase1 * phase2 * Matrix1S(p) * prop;
+    return phase1 * phase2 * prop; // Matrix(p) is a constant, multiply it after integration
 }
 
 // integrate the integrand to get inelastic quark reco rate
@@ -541,7 +733,7 @@ double RV1S_reco_ineq(double v, double T, double p){
     params[1] = T;
     params[2] = p;
     double result, error;
-    double p1up = 18.*T/std::sqrt(1.-v);
+    double p1up = 15.*T/std::sqrt(1.-v);
     double xl[4] = { 0., -1., -1., 0. };
     double xu[4] = { p1up, 1., 1., TwoPi };
     gsl_monte_function F;
@@ -554,7 +746,7 @@ double RV1S_reco_ineq(double v, double T, double p){
     gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
-    return result * dRdp1dp2_1S_reco_prefactor; // no gamma here
+    return result * dRdp1dp2_1S_reco_prefactor * Matrix1S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
 }
 
 // now sampling
@@ -587,7 +779,7 @@ std::vector<double> S1S_reco_ineq(double v, double T, double p){
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
     double p1low = 0.0;
-    double p1up = 18.*T/std::sqrt(1.-v);
+    double p1up = 15.*T/std::sqrt(1.-v);
     double E_rel = p*p/M;
     
     double * params_p1 = new double[3];
@@ -627,7 +819,7 @@ std::vector<double> S1S_reco_ineq_test(double v, double T, double p){
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
     double p1low = 0.0;
-    double p1up = 18.*T/std::sqrt(1.-v);
+    double p1up = 15.*T/std::sqrt(1.-v);
     double E_rel = p*p/M;
     
     double * params_p1 = new double[3];
@@ -660,12 +852,165 @@ std::vector<double> S1S_reco_ineq_test(double v, double T, double p){
     p1p2_test[3] = phi_try;
     return p1p2_test;
 }
-//---------------------- end of inelastic quark recombination -----------------------
+//------------------ end of inelastic quark recombination ------------------
 
 
+//--------------------- inelastic gluon recombination ----------------------
+// define the integrand for inelastic gluon reco
+double dRdq1dq2_1S_reco_ineg(double x[4], size_t dim, void * params_){
+    double q1 = x[0];
+    double c1 = x[1];
+    double c2 = x[2];
+    double phi = x[3];
+    double * params = static_cast<double *>(params_);
+    double v = params[0];
+    double T = params[1];
+    double p = params[2];
+    double gamma = 1./std::sqrt(1.-v*v);
+    double q2 = q1 + p*p/M + E1S;
+    double s1 = std::sqrt(1.-c1*c1);
+    double s2 = std::sqrt(1.-c2*c2);
+    double phase1 = q1*nB(gamma*q1*(1.+v*c1)/T);
+    double phase2 = q2*(1.+nB(gamma*q2*(1.+v*c2)/T));
+    double part_angle = s1*s2*std::cos(phi)+c1*c2;
+    double q1q2sum = q1+q2;
+    double prop = q1q2sum*q1q2sum*(1.+part_angle)/( q1*q1+q2*q2-2.*q1*q2*part_angle );
+    return phase1 * phase2 * prop;  // Matrix(p) is a constant, multiply it after integration
+}
+
+// integrate the integrand to get inelastic gluon reco rate
+double RV1S_reco_ineg(double v, double T, double p){
+    double * params = new double[3];
+    params[0] = v;
+    params[1] = T;
+    params[2] = p;
+    double result, error;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double xl[4] = { 0., -1., -1., 0. };
+    double xu[4] = { q1up, 1., 1., TwoPi };
+    gsl_monte_function F;
+    F.f = &dRdq1dq2_1S_reco_ineg;
+    F.dim = 4;
+    F.params = params;
+    gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
+    gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
+    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    delete [] params;
+    gsl_monte_vegas_free(w);
+    return result * dRdq1dq2_1S_reco_prefactor * Matrix1S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
+}
+
+// now sampling
+// used in importance sampling of q1
+double f_q1_reco_important(double q1, void * params_){
+    q1 = std::max(q1, small_number);
+    double * params = static_cast<double *>(params_);
+    double k1 = params[0];  // k1 = gamma*(1-v)/T
+    double k2 = params[1];  // k2 = gamma*(1+v)/T
+    double E_rel = params[2];   // E_rel = p_rel^2/M
+    double q2 = q1+E1S+E_rel;
+    double q1q2 = q1/q2;
+    return ( fac1(k2*q1) - fac1(k1*q1) ) * q2 * (1. + 4./(q1q2 + 1./q1q2 - 2.0) );
+}
+
+// importance sampling of q1
+double S1S_reco_ineg_q1_important(double q1low, double q1up, void * params_){
+    double * params = static_cast<double *>(params_);
+    double result_max = find_max(&f_q1_reco_important, params, q1low, q1up);
+    double result_try, q1_try;
+    do{
+        q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
+        result_try = f_q1_reco_important(q1_try, params);
+    } while(rejection(gen)*result_max > result_try);
+    return q1_try;
+}
+
+std::vector<double> S1S_reco_ineg(double v, double T, double p){
+    v = std::max(v, small_number);
+    double gamma = 1./std::sqrt(1.-v*v);
+    double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
+    double q1low = 0.0;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double E_rel = p*p/M;
+    double result_max = nBplus1(gamma*(1.0-v)*(E1S+E_rel)/T);
+    
+    double * params_q1 = new double[3];
+    params_q1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
+    params_q1[1] = gamma*(1.+v)/T; //k2 = gamma*(1+v)/T
+    params_q1[2] = E_rel;   // E_rel = p^2/M
+    
+    double * params_c1 = new double[2];
+    params_c1[0] = v;
+    params_c1[1] = gamma/T;
+    
+    do{
+        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
+        q2_try = q1_try + E_rel + E1S;
+        c2_try = sample_cos(gen);
+        s1_try = std::sqrt(1.-c1_try*c1_try);
+        s2_try = std::sqrt(1.-c2_try*c2_try);
+        phi_try = sample_inel(gen)*TwoPi;
+        q1q2_try = q1_try/q2_try;   // q1/q2
+        c_phi = std::cos(phi_try);
+        s_phi = std::sin(phi_try);
+        part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
+        result_try = nBplus1(gamma*(1.+v*c2_try)*q2_try/T) * (1.+part_angle)/2.0 * (q1q2_try + 1./q1q2_try - 2.0) / (q1q2_try + 1./q1q2_try - 2.0*part_angle);
+    } while(rejection(gen)*result_max > result_try);
+    std::vector<double> q1_final(3);
+    std::vector<double> q2_final(3);
+    std::vector<double> p1S_final(3);
+    q1_final = polar_to_cartisian2(q1_try, c1_try, s1_try, 1.0, 0.0);
+    q2_final = polar_to_cartisian2(q2_try, c2_try, s2_try, c_phi, s_phi);
+    p1S_final = subtract_virtual_gluon(q1_final, q2_final);
+    return p1S_final;
+}
+
+std::vector<double> S1S_reco_ineg_test(double v, double T, double p){
+    v = std::max(v, small_number);
+    double gamma = 1./std::sqrt(1.-v*v);
+    double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
+    double q1low = 0.0;
+    double q1up = 15.*T/std::sqrt(1.-v);
+    double E_rel = p*p/M;
+    double result_max = nBplus1(gamma*(1.0-v)*(E1S+E_rel)/T);
+    
+    double * params_q1 = new double[3];
+    params_q1[0] = gamma*(1.-v)/T; //k1 = gamma*(1-v)/T
+    params_q1[1] = gamma*(1.+v)/T; //k2 = gamma*(1+v)/T
+    params_q1[2] = E_rel;   // E_rel = p^2/M
+    
+    double * params_c1 = new double[2];
+    params_c1[0] = v;
+    params_c1[1] = gamma/T;
+    
+    do{
+        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
+        q2_try = q1_try + E_rel + E1S;
+        c2_try = sample_cos(gen);
+        s1_try = std::sqrt(1.-c1_try*c1_try);
+        s2_try = std::sqrt(1.-c2_try*c2_try);
+        phi_try = sample_inel(gen)*TwoPi;
+        q1q2_try = q1_try/q2_try;   // q1/q2
+        c_phi = std::cos(phi_try);
+        s_phi = std::sin(phi_try);
+        part_angle = s1_try*s2_try*c_phi + c1_try*c2_try;
+        result_try = nBplus1(gamma*(1.+v*c2_try)*q2_try/T) * (1.+part_angle)/2.0 * (q1q2_try + 1./q1q2_try - 2.0) / (q1q2_try + 1./q1q2_try - 2.0*part_angle);
+    } while(rejection(gen)*result_max > result_try);
+    std::vector<double> q1q2_test(4);
+    q1q2_test[0] = q1_try;
+    q1q2_test[1] = c1_try;
+    q1q2_test[2] = c2_try;
+    q1q2_test[3] = phi_try;
+    return q1q2_test;
+}
+
+//------------------- end of inelastic gluon recombination --------------------
 
 
-// ---------------------------- end of recombination ------------------------------
+// -------------------------------------------------------- end of recombination ------------------------------------------------------------------
 
 
 // convert 3-momentum to 4-momentum for Q, Qbar

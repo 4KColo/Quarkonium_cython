@@ -19,7 +19,7 @@ Nb_t = []			# to store number of Q or Qbar in each time step
 P_sample = 5.0		# GeV, initial uniform sampling
 
 # define the event generator
-event_gen = QQbar_evol('static', temp_init = T, HQ_scat = False)
+event_gen = QQbar_evol('static', temp_init = T, HQ_scat = False, process = 'all')
 
 for i in range(N_ave):
 	# initialize N_ave number of events
