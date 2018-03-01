@@ -6,9 +6,9 @@ import h5py
 
 
 #### ------------ multiple runs averaged and compare ---------------- ####
-N_ave = 10		# #of parallel runnings
+N_ave = 5000		# #of parallel runnings
 T = 0.3		
-N_step = 25
+N_step = 2500
 dt = 0.04
 tmax = N_step*dt
 t = np.linspace(0.0, tmax, N_step+1)
@@ -17,9 +17,10 @@ N1s0 = 0			# initial number of U1s
 N1s_t = []			# to store number of U1s in each time step
 Nb_t = []			# to store number of Q or Qbar in each time step
 P_sample = 5.0		# GeV, initial uniform sampling
+Process_chosen = 'ineq'
 
 # define the event generator
-event_gen = QQbar_evol('static', temp_init = T, HQ_scat = False, process = 'all')
+event_gen = QQbar_evol('static', temp_init = T, HQ_scat = False, process = Process_chosen)
 
 for i in range(N_ave):
 	# initialize N_ave number of events
@@ -46,8 +47,8 @@ Rb_t = 1.0 - R1s_t						# ratio
 
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('ThermalnoHQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+'.hdf5', 'w')
-#file1 = h5py.File('UniformTPmax='+str(P_sample)+'HQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nc0='+str(Nc0)+'N1s0='+str(N1s0)+'.hdf5', 'w')
+file1 = h5py.File('ThermalnoHQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+str(Process_chosen)+'.hdf5', 'w')
+#file1 = h5py.File('UniformTPmax='+str(P_sample)+'HQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nc0='+str(Nc0)+'N1s0='+str(N1s0)+str(Process_chosen)+'.hdf5', 'w')
 file1.create_dataset('percentage', data = R1s_t)
 file1.create_dataset('time', data = t)
 file1.close()
