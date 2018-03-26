@@ -381,7 +381,7 @@ double Xsection_2to3::calculate(double * arg){
 	gsl_monte_vegas_free(sv);
 	gsl_rng_free(r);
 	delete [] params;
-	return result*2./c256pi4/(s-M2);
+	return result/c256pi4/(s-M2);
 }
 
 void Xsection_2to3::sample_dXdPS(double * arg, std::vector< std::vector<double> > & FS){
