@@ -55,7 +55,7 @@ N1S_t_ave = np.sum(N1S_t, axis = 0)/(N_ave + 0.0)	# averaged number of 1S state 
 
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'.hdf5', 'w')
+file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'.hdf5', 'w')
 file1.create_dataset('1Sp4initial', data = p4i_1S)
 file1.create_dataset('1Sp4final', data = p4f_1S)
 file1.create_dataset('1Snumber', data = N1S_t_ave)
