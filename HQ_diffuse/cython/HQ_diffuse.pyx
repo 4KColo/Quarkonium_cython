@@ -19,17 +19,19 @@ cdef extern from "../src/utility.h":
 
 
 cdef class HQ_diff:
+	cdef M_b
 	cdef object hqsample
 	def __cinit__(self, double Mass):
+		self.M_b = Mass
 		self.hqsample = HqEvo.HqEvo(
-		options={'transport': {'2->2':True, '2->3':False, '3->2':False},
+		options={'transport': {'2->2':True, '2->3':True, '3->2':True},
 			 'mass': Mass, 
 			 'Nf': 3,
 			 'Kfactor': 1.0,
 			 'Tc': 0.154,
 			 'mD': {'mD-model': 0, 'mTc': 5., 'slope': 0.5, 'curv': -1.2}},
-		table_folder="./tables"+str(Mass),
-		refresh_table=True	)
+		table_folder="./tables",
+		refresh_table=False	)
 
 		# this function needs to be cdef so that we can use the reference copy
 	cpdef (int, double, vector[double]) update_HQ_LBT(self, vector[double] p1_lab, vector[double] v3cell, double Temp, double mean_dt23_lab, double mean_dt32_lab):
@@ -82,7 +84,7 @@ cdef class HQ_diff:
 
 			boost4_By3(p1_com, p1_cell_Z, v3com)
 			if channel in [4,5]: # channel=4,5 for 3 -> 2 kinetics
-				L1 = sqrt(p1_com[0]**2 - self.M**2)
+				L1 = sqrt(p1_com[0]**2 - self.M_b**2)
 				boost4_By3(pbuffer, self.hqsample.IS[1], v3com)
 				L2 = pbuffer[0]
 				boost4_By3(pbuffer, self.hqsample.IS[2], v3com)
