@@ -22,13 +22,14 @@ class Dynam_Initial_Sample:
 		### -------- store the position information -------- ###
 		#file_TAB = h5py.File('ic-'+centrality_str+'-avg.hdf5','r')
 		#Tab = np.array(file_TAB['TAB_0'].value)
+		#Nx, Ny = Tab.shape
+		#Tab_flat = Tab.reshape(-1)
 		file_TAB = open(str(energy_GeV)+'initial_averaged_sd_cen'+centrality_str+'.dat','r')
 		Tab = file_TAB.read().split()
-		Tab = np.array([float(each) for each in Tab])
+		Tab_flat = np.array([float(each) for each in Tab])
 		dx = 0.1 	# fm
 		dy = 0.1	# fm
-		Nx, Ny = Tab.shape
-		Tab_flat = Tab.reshape(-1)
+		Nx = Ny = np.sqrt(len(Tab_flat))
 		T_tot = np.sum(Tab_flat)
 		T_AA_mb = T_AA_mb = Taa[str(energy_GeV)][centrality_str]
 		T_norm = Tab_flat/T_tot
