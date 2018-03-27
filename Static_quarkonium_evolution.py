@@ -397,10 +397,10 @@ class QQbar_evol:
 					position_U1S = x_CM%self.Lmax
 					
 					# update the quarkonium list
-					if len_U1S == 0:
+					if len(self.U1Slist['4-momentum']) == 0:
 						self.U1Slist['4-momentum'] = np.array([momentum_U1S])
 						self.U1Slist['3-position'] = np.array([position_U1S])
-						self.U1Slist['last_form_time'] = np.array(self.t)
+						self.U1Slist['last_form_time'] = np.array([self.t])
 					else:
 						self.U1Slist['4-momentum'] = np.append(self.U1Slist['4-momentum'], [momentum_U1S], axis=0)
 						self.U1Slist['3-position'] = np.append(self.U1Slist['3-position'], [position_U1S], axis=0)

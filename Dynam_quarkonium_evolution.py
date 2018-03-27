@@ -54,6 +54,7 @@ class QQbar_evol:
 			self.U1Slist['4-momentum'] = self.init.U1Sinit_p()
 			self.U1Slist['3-position'] = self.init.U1Sinit_x()
 			
+			
 			N_Q = len(self.Qlist['4-momentum'])
 			N_Qbar = len(self.Qlist['4-momentum'])
 			N_U1S = len(self.U1Slist['4-momentum'])
@@ -73,6 +74,9 @@ class QQbar_evol:
 				self.Qbarlist['last_t32'].append(0.0)
 				self.Qbarlist['last_scatter_dt'].append(0.0)
 			
+			for i in range(N_U1S):
+				self.U1Slist['last_form_time'].append(0.0)
+				
 			self.Qlist['4-momentum'] = np.array(self.Qlist['4-momentum'])
 			self.Qlist['3-position'] = np.array(self.Qlist['3-position'])
 			self.Qlist['last_t23'] = np.array(self.Qlist['last_t23'])
@@ -364,7 +368,7 @@ class QQbar_evol:
 					if len(self.U1Slist['4-momentum']) == 0:
 						self.U1Slist['4-momentum'] = np.array([momentum_U1S])
 						self.U1Slist['3-position'] = np.array([position_U1S])
-						self.U1Slist['last_form_time'] = np.array(self.t)
+						self.U1Slist['last_form_time'] = np.array([self.t])
 					else:
 						self.U1Slist['4-momentum'] = np.append(self.U1Slist['4-momentum'], [momentum_U1S], axis=0)
 						self.U1Slist['3-position'] = np.append(self.U1Slist['3-position'], [position_U1S], axis=0)
