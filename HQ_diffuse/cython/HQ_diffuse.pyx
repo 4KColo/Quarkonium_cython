@@ -36,6 +36,7 @@ cdef class HQ_diff:
 		# this function needs to be cdef so that we can use the reference copy
 	cpdef (int, double, vector[double]) update_HQ_LBT(self, vector[double] p1_lab, vector[double] v3cell, double Temp, double mean_dt23_lab, double mean_dt32_lab):
 		# Define local variables
+		print 'p1_lab', p1_lab
 		cdef double s, L1, L2, Lk, x2, xk, a1=0.6, a2=0.6
 		cdef double dt_cell, dt23_com
 		cdef size_t i=0
@@ -49,7 +50,8 @@ cdef class HQ_diff:
 
 		# Boost p1 (lab) to p1 (cell)
 		boost4_By3(p1_cell, p1_lab, v3cell)
-
+		print 'p1_cell', p1_cell
+		
 		# displacement vector within dx23_lab and dx32_lab seen from cell frame
 		dx23_cell.resize(4)
 		dx32_cell.resize(4)
@@ -70,6 +72,7 @@ cdef class HQ_diff:
 			# Imagine rotate p1_cell to align with z-direction, construct p2_cell_align, ...				
 			self.hqsample.sample_initial(channel, p1_cell[0], Temp, dx23_cell[0], dx32_cell[0])
 			p1_cell_Z = self.hqsample.IS[0]
+			print 'p1_cell_Z', p1_cell_Z
 			# Center of mass frame of p1_cell_align and other particles, and take down orientation of p1_com
 			Pcom.resize(4)
 			for i in range(4):
@@ -83,6 +86,7 @@ cdef class HQ_diff:
 				v3com[i] = Pcom[i+1]/Pcom[0];
 
 			boost4_By3(p1_com, p1_cell_Z, v3com)
+			print 'p1_com', p1_com
 			if channel in [4,5]: # channel=4,5 for 3 -> 2 kinetics
 				L1 = sqrt(p1_com[0]**2 - self.M_b**2)
 				boost4_By3(pbuffer, self.hqsample.IS[1], v3com)
@@ -98,6 +102,7 @@ cdef class HQ_diff:
 			# Sample final state momentum in Com frame, with incoming paticles on z-axis
 			self.hqsample.sample_final(channel, s, Temp, dt23_com, a1, a2)
 			p1_com_Z_new = self.hqsample.FS[0]
+			print 'p1_com_Z_new', p1_com_Z_new
 			# Rotate final states back to original Com frame (not z-axis aligened)
 			rotate_back_from_D(p1_com_new, p1_com_Z_new, p1_com[1], p1_com[2], p1_com[3])
 			# boost back to cell frame z-align
@@ -106,7 +111,8 @@ cdef class HQ_diff:
 			rotate_back_from_D(p1_cell_new, p1_cell_Z_new, p1_cell[1], p1_cell[2], p1_cell[3])
 			# boost back to lab frame
 			boost4_By3_back(pnew, p1_cell_new, v3cell)
-
+			print 'pnew', pnew
+			
 		# return channel, dt in lab frame, updated momentum of heavy quark
 		# the channels are: 0:Qq2Qq，1:Qg2Qg, 2:Qq2Qqg, 3:Qg2Qgg, 4:Qqg2Qq, 5:Qgg2Qg
 		return channel, dtHQ, pnew
