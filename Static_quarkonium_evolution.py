@@ -330,43 +330,30 @@ class QQbar_evol:
 					prob_reco_ineq = 0.0*np.array(rate_reco_ineq)
 					prob_reco_ineg = 0.75*8./9.*np.array(rate_reco_ineg)*dt/C1
 												
-				total_prob_reco_gluon = np.sum(prob_reco_gluon)
-				total_prob_reco_ineq = np.sum(prob_reco_ineq)
-				total_prob_reco_ineg = np.sum(prob_reco_ineg)
+				#total_prob_reco_gluon = np.sum(prob_reco_gluon)
+				#total_prob_reco_ineq = np.sum(prob_reco_ineq)
+				#total_prob_reco_ineg = np.sum(prob_reco_ineg)
+				prob_reco_all = prob_reco_gluon + prob_reco_ineq + prob_reco_ineg
+				total_prob_reco_all = np.sum(prob_reco_all)
 				rej_mc = np.random.rand(1)
 				
-				if rej_mc <= total_prob_reco_gluon + total_prob_reco_ineq + total_prob_reco_ineg:
+				if rej_mc <= total_prob_reco_all:
 					delete_Q.append(i)		# remove this Q later
 					# find the Qbar we need to remove
-					if rej_mc <= total_prob_reco_gluon:
-						a = 0.0
-						channel_reco = 'gluon'
-						for j in range(len_recoQbar):
-							if a <= rej_mc <= a + prob_reco_gluon[j]:
-								k = j
-								break
-							a += prob_reco_gluon[j]
-						delete_Qbar.append(pair_list[i][k]%len_Qbar)
-						
-					elif rej_mc <= total_prob_reco_gluon + total_prob_reco_ineq:
-						a = total_prob_reco_gluon
-						channel_reco = 'ineq'
-						for j in range(len_recoQbar):
-							if a <= rej_mc <= a + prob_reco_ineq[j]:
-								k = j
-								break
-							a += prob_reco_ineq[j]
-						delete_Qbar.append(pair_list[i][k]%len_Qbar)
-						
-					else:
-						a = total_prob_reco_gluon + total_prob_reco_ineq
-						channel_reco = 'ineg'
-						for j in range(len_recoQbar):
-							if a <= rej_mc <= a + prob_reco_ineg[j]:
-								k = j
-								break
-							a += prob_reco_ineg[j]
-						delete_Qbar.append(pair_list[i][k]%len_Qbar)
+					a = 0.0
+					for j in range(len_recoQbar):
+						if a <= rej_mc <= a + prob_reco_all[j]:
+							k = j
+							if rej_mc <= a + prob_reco_gluon[j]:
+								channel_reco = 'gluon'
+							elif rej_mc <= a + prob_reco_gluon[j] + prob_reco_ineq[j]:
+								channel_reco = 'ineq'
+							else:
+								channel_reco = 'ineg'
+							break
+						a += prob_reco_all[j]
+					delete_Qbar.append(pair_list[i][k]%len_Qbar)
+					
 					# re-construct the reco event and sample initial and final states
 					# positions and local temperature
 					xQ = self.Qlist['3-position'][i]
