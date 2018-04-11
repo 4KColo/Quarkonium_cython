@@ -10,5 +10,6 @@ vector<double> rotation_transform3(vector<double> vector_3, double theta, double
 vector<double> angle_find(vector<double> vector_3);
 vector<double> rotation_transform4(vector<double> vector_4, double theta, double phi);
 vector<double> find_vCM_prel(vector<double> pQ, vector<double> pQbar, double mass);
+vector<double> rotate_by_Dinv(vector<double> A, double Dx, double Dy, double Dz);
 // define these functions in .h file so that cython can call; for what these functions really do, the compiler will refer to cpp(cxx) file
 #endif

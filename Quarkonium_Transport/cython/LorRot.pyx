@@ -15,7 +15,7 @@ cdef extern from "../src/TransLorentzRotate.h":
 	cdef vector[double] rotation_transform4(vector[double] vector_4, double theta, double phi)	
 	cdef vector[double] angle_find(vector[double] vector_3)
 	cdef vector[double] find_vCM_prel(vector[double] pQ, vector[double] pQbar, double mass)
-
+	cdef vector[double] rotate_by_Dinv(vector[double] A, double Dx, double Dy, double Dz)
 
 #### ----------- Provide a direct python wrapper for these functions for tests
 
@@ -33,6 +33,9 @@ def rotation3(np.ndarray[double, ndim=1] v3, double theta, double phi):
 
 def rotation4(np.ndarray[double, ndim=1] v4, double theta, double phi):
 	return np.array(rotation_transform4(v4, theta, phi))
+
+def rotate_back_from_D(np.ndarray[double, ndim=1] A, double Dx, double Dy, double Dz):
+	return np.array(rotate_by_Dinv(A, Dx, Dy, Dz))
 ## ------------ end of rotation ------------ ##
 
 

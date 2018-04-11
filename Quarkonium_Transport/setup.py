@@ -8,7 +8,7 @@ import numpy
 
 #------ Dissociation and Recombination Module ------
 filesDisRec = [	'cython/DisRec.pyx', 
-				'src/DisRec.cxx' ]
+				'src/DisRec_nS.cxx']
 #------ Lorentz and Rotation transformations ------
 filesLorRot = [	'cython/LorRot.pyx',
 				'src/TransLorentzRotate.cxx' ]

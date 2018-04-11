@@ -68,6 +68,27 @@ std::vector<double> rotation_transform4(std::vector<double> vector_4, double the
     return v4_new;
 }
 
+// only works for 4-vector A, rotate back from D as z axis to original D
+std::vector<double> rotate_by_Dinv(std::vector<double> A, double Dx, double Dy, double Dz){
+    std::vector<double> Ap(4);
+    double Dperp = std::sqrt(Dx*Dx + Dy*Dy);
+    double D = std::sqrt(Dperp*Dperp + Dz*Dz);
+    if (Dperp/D < 1e-10){
+        Ap[0] = A[0];
+        Ap[1] = A[1];
+        Ap[2] = A[2];
+        Ap[3] = A[3];
+    }
+    else{
+        double c2 = Dz/D, s2 = Dperp/D;
+        double c3 = Dx/Dperp, s3 = Dy/Dperp;
+        Ap[0] = A[0];
+        Ap[1] = -s3*A[2] + c3*(c2*A[1] + s2*A[3]);
+        Ap[2] = c3*A[2]  + s3*(c2*A[1] + s2*A[3]);
+        Ap[3] =          - s2*A[1]     + c2*A[3];
+    }
+    return Ap;
+}
 // ------------------------ end of rotation transformation ---------------------------
 
 

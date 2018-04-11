@@ -8,7 +8,7 @@ from Medium_Read import hydro_reader
 from Dynam_Initial_Sample import Dynam_Initial_Sample
 import DisRec
 import LorRot
-import HQ_diffuse
+from HQ_diffuse import HQ_diff
 
 #### --------- some constants -----------------------------
 M = 4.65					  # b-quark mass in GeV
@@ -16,13 +16,13 @@ C1 = 0.197327				  # 0.197 GeV*fm = 1
 R_search = 1.0				  # (fm), pair-search radius in the recombination
 Tc = 0.154				  	  # critical temperature of QGP
 T_1S = 1.5					  # melting temperature of Upsilon_1S
-
+T_2S = 0.3					  # melting temperature of Upsilon_2S
 
 
 class QQbar_evol:
 ####---- input the medium_type when calling the class ----####
 	def __init__(self, medium_type = 'dynamical', centrality_str_given = '0-10', energy_GeV = 2760, recombine = True, HQ_scat = False):
-		self.type = medium_type		
+		self.type = medium_type
 		self.recombine = recombine
 		self.HQ_scat = HQ_scat
 		self.centrality = centrality_str_given
@@ -33,19 +33,20 @@ class QQbar_evol:
 		self.event = DisRec.DisRec()
 		## -------------- create HQ-diff rates reader -------- ##
 		if self.HQ_scat == True:
-			self.HQ_event = HQ_diffuse.HQ_diff(Mass = M)
+			self.HQ_event = HQ_diff(Mass = M)
 
 ####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
 ####---- tau0 = 0.6 fm/c is the hydro starting time; before that, free stream
-	def initialize(self, tau0 = 0.6):
+	def initialize(self, tau0 = 0.6, sample_method = 'corr'):
 		if self.type == 'dynamical':
 			## ----- create dictionaries to store momenta, positions, id ----- ##
 			self.Qlist = {'4-momentum': [], '3-position': [], 'id': 5, 'last_t23': [], 'last_t32': [],  'last_scatter_dt':[]}
 			self.Qbarlist = {'4-momentum': [], '3-position': [], 'id': -5, 'last_t23': [], 'last_t32': [],  'last_scatter_dt':[]}
 			self.U1Slist = {'4-momentum': [], '3-position': [], 'id': 533, 'last_form_time': []}
+			self.U2Slist = {'4-momentum': [], '3-position': [], 'id': 100533, 'last_form_time': []}
 			
 			## -------------- create init p,x sampler ------------ ##
-			self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality)
+			self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
 			## --------- sample initial momenta and positions -------- ##
 			self.Qlist['4-momentum'] = self.init.Qinit_p()
 			self.Qlist['3-position'] = self.init.Qinit_x()
@@ -53,30 +54,39 @@ class QQbar_evol:
 			self.Qbarlist['3-position'] = self.init.Qbarinit_x()
 			self.U1Slist['4-momentum'] = self.init.U1Sinit_p()
 			self.U1Slist['3-position'] = self.init.U1Sinit_x()
-			
+			self.U2Slist['4-momentum'] = self.init.U2Sinit_p()
+			self.U2Slist['3-position'] = self.init.U2Sinit_x()
 			
 			N_Q = len(self.Qlist['4-momentum'])
-			N_Qbar = len(self.Qlist['4-momentum'])
+			N_Qbar = len(self.Qbarlist['4-momentum'])
 			N_U1S = len(self.U1Slist['4-momentum'])
+			N_U2S = len(self.U2Slist['4-momentum'])
 			
-			## free stream the Q, Qbar, U1S in the lab frame by 0.6 time
+			## free stream the Q, Qbar, U1S, U2S in the lab frame by 0.6 time
 			for i in range(N_Q):
 				vQ = self.Qlist['4-momentum'][i][1:]/self.Qlist['4-momentum'][i][0]
 				self.Qlist['3-position'][i] += vQ*tau0
-				self.Qlist['last_t23'].append(0.0)
-				self.Qlist['last_t32'].append(0.0)
+				self.Qlist['last_t23'].append(0.6)
+				self.Qlist['last_t32'].append(0.6)
 				self.Qlist['last_scatter_dt'].append(0.0)
 
 			for i in range(N_Qbar):
 				vQbar = self.Qbarlist['4-momentum'][i][1:]/self.Qbarlist['4-momentum'][i][0]
-				self.Qbarlist['3-position'][i] += vQbar * tau0
-				self.Qbarlist['last_t23'].append(0.0)
-				self.Qbarlist['last_t32'].append(0.0)
+				self.Qbarlist['3-position'][i] += vQbar*tau0
+				self.Qbarlist['last_t23'].append(0.6)
+				self.Qbarlist['last_t32'].append(0.6)
 				self.Qbarlist['last_scatter_dt'].append(0.0)
 			
 			for i in range(N_U1S):
-				self.U1Slist['last_form_time'].append(0.0)
-				
+				vU1S = self.U1Slist['4-momentum'][i][1:]/self.U1Slist['4-momentum'][i][0]
+				self.U1Slist['3-position'][i] += vU1S*tau0
+				self.U1Slist['last_form_time'].append(0.6)
+			
+			for i in range(N_U2S):
+				vU2S = self.U2Slist['4-momentum'][i][1:]/self.U2Slist['4-momentum'][i][0]
+				self.U2Slist['3-position'][i] += vU2S*tau0
+				self.U2Slist['last_form_time'].append(0.6)
+					
 			self.Qlist['4-momentum'] = np.array(self.Qlist['4-momentum'])
 			self.Qlist['3-position'] = np.array(self.Qlist['3-position'])
 			self.Qlist['last_t23'] = np.array(self.Qlist['last_t23'])
@@ -90,7 +100,9 @@ class QQbar_evol:
 			self.U1Slist['4-momentum'] = np.array(self.U1Slist['4-momentum'])
 			self.U1Slist['3-position'] = np.array(self.U1Slist['3-position'])
 			self.U1Slist['last_form_time'] = np.array(self.U1Slist['last_form_time'])
-			
+			self.U2Slist['4-momentum'] = np.array(self.U2Slist['4-momentum'])
+			self.U2Slist['3-position'] = np.array(self.U2Slist['3-position'])
+			self.U2Slist['last_form_time'] = np.array(self.U2Slist['last_form_time'])
 			## ------------- store the current lab time ------------ ##
 			self.t = tau0
 
@@ -100,7 +112,7 @@ class QQbar_evol:
 		len_Q = len(self.Qlist['4-momentum'])
 		len_Qbar = len(self.Qbarlist['4-momentum'])
 		len_U1S = len(self.U1Slist['4-momentum'])
-		
+		len_U2S = len(self.U2Slist['4-momentum'])
 		
 		### ----------- free stream these particles ------------###
 		for i in range(len_Q):
@@ -111,14 +123,15 @@ class QQbar_evol:
 			self.Qbarlist['3-position'][i] = self.Qbarlist['3-position'][i] + dt * v3_Qbar		
 		for i in range(len_U1S):
 			v3_U1S = self.U1Slist['4-momentum'][i][1:]/self.U1Slist['4-momentum'][i][0]
-			self.U1Slist['3-position'][i] = self.U1Slist['3-position'][i] + dt * v3_U1S	
+			self.U1Slist['3-position'][i] = self.U1Slist['3-position'][i] + dt * v3_U1S
+		for i in range(len_U2S):
+			v3_U2S = self.U2Slist['4-momentum'][i][1:]/self.U2Slist['4-momentum'][i][0]
+			self.U2Slist['3-position'][i] = self.U2Slist['3-position'][i] + dt * v3_U2S
 		### ----------- end of free stream particles -----------###
-
-
-		###!!! update the time here, otherwise z would be bigger than t !!!###
+		
+		### ----- update the time here, otherwise z would be bigger than t ---- ###
 		self.t += dt
-		
-		
+				
 		### ------------- heavy quark diffusion --------------- ###
 		if self.HQ_scat == True:
 			for i in range(len_Q):
@@ -167,6 +180,7 @@ class QQbar_evol:
 
 		### -------------------- decay ------------------------ ###
 		delete_U1S = []
+		delete_U2S = []
 		add_pQ = []
 		add_pQbar = []
 		add_xQ = []
@@ -175,7 +189,7 @@ class QQbar_evol:
 		add_t32 = []
 		add_dt_last = []
 		
-
+		### --------- 1S decay ---------- ###
 		for i in range(len_U1S):
 			T_Vxyz = self.hydro.cell_info(self.t, self.U1Slist['3-position'][i])		# temp, vx, vy, vz
 			# only consider dissociation and recombination if in the de-confined phase
@@ -184,22 +198,22 @@ class QQbar_evol:
 				v3_in_hydrocell = p4_in_hydrocell[1:]/p4_in_hydrocell[0]
 				v_in_hydrocell = np.sqrt(np.sum(v3_in_hydrocell**2))
 
-				rate_decay_gluon = self.event.get_R1S_decay_gluon( v_in_hydrocell, T_Vxyz[0] )		# GeV
-				rate_decay_ineq = self.event.get_R1S_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
-				rate_decay_ineg = self.event.get_R1S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
+				rate_decay1S_gluon = self.event.get_R1S_decay_gluon( v_in_hydrocell, T_Vxyz[0] )		# GeV
+				rate_decay1S_ineq = self.event.get_R1S_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
+				rate_decay1S_ineg = self.event.get_R1S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
 				
 				# in lab frame decay probability
 				# dt = 0.04 is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
-				prob_decay_gluon = rate_decay_gluon * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
-				prob_decay_ineq = rate_decay_ineq * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
-				prob_decay_ineg = rate_decay_ineg * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
+				prob_decay1S_gluon = rate_decay1S_gluon * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
+				prob_decay1S_ineq = rate_decay1S_ineq * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
+				prob_decay1S_ineg = rate_decay1S_ineg * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
 				
-				rej_decay_mc = np.random.rand(1)
-				if rej_decay_mc <= prob_decay_gluon + prob_decay_ineq + prob_decay_ineg:
+				rej_decay1S_mc = np.random.rand(1)
+				if rej_decay1S_mc <= prob_decay1S_gluon + prob_decay1S_ineq + prob_decay1S_ineg:
 					delete_U1S.append(i)
-					if rej_decay_mc <= prob_decay_gluon:
+					if rej_decay1S_mc <= prob_decay1S_gluon:
 						recoil_pQpQbar = self.event.sample_S1S_decay_gluon( v_in_hydrocell, T_Vxyz[0] )
-					elif rej_decay_mc <= prob_decay_gluon + prob_decay_ineq:
+					elif rej_decay1S_mc <= prob_decay1S_gluon + prob_decay1S_ineq:
 						recoil_pQpQbar = self.event.sample_S1S_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
 					else:
 						recoil_pQpQbar = self.event.sample_S1S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
@@ -232,6 +246,64 @@ class QQbar_evol:
 					add_t23.append(self.t)
 					add_t32.append(self.t)
 					add_dt_last.append(0.0)
+		
+		### --------- 2S decay ---------- ###
+		for i in range(len_U2S):
+			T_Vxyz = self.hydro.cell_info(self.t, self.U2Slist['3-position'][i])		# temp, vx, vy, vz
+			# only consider dissociation and recombination if in the de-confined phase
+			if T_Vxyz[0] >= Tc:	
+				p4_in_hydrocell = LorRot.lorentz(self.U2Slist['4-momentum'][i], T_Vxyz[1:])		# boost to hydro cell
+				v3_in_hydrocell = p4_in_hydrocell[1:]/p4_in_hydrocell[0]
+				v_in_hydrocell = np.sqrt(np.sum(v3_in_hydrocell**2))
+
+				rate_decay2S_gluon = self.event.get_R2S_decay_gluon( v_in_hydrocell, T_Vxyz[0] )		# GeV
+				rate_decay2S_ineq = self.event.get_R2S_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
+				rate_decay2S_ineg = self.event.get_R2S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
+				
+				# in lab frame decay probability
+				# dt = 0.04 is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
+				prob_decay2S_gluon = rate_decay2S_gluon * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]
+				prob_decay2S_ineq = rate_decay2S_ineq * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]
+				prob_decay2S_ineg = rate_decay2S_ineg * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]
+				
+				rej_decay2S_mc = np.random.rand(1)
+				if rej_decay2S_mc <= prob_decay2S_gluon + prob_decay2S_ineq + prob_decay2S_ineg:
+					delete_U2S.append(i)
+					if rej_decay2S_mc <= prob_decay2S_gluon:
+						recoil_pQpQbar = self.event.sample_S2S_decay_gluon( v_in_hydrocell, T_Vxyz[0] )
+					elif rej_decay2S_mc <= prob_decay2S_gluon + prob_decay2S_ineq:
+						recoil_pQpQbar = self.event.sample_S2S_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
+					else:
+						recoil_pQpQbar = self.event.sample_S2S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
+										
+					recoil_pQ = np.array(recoil_pQpQbar[0:4])		# 4-momentum
+					recoil_pQbar = np.array(recoil_pQpQbar[4:8])
+
+					# Q, Qbar momenta need to be rotated from the v = z axis to hydro cell frame
+					# first get the rotation matrix angles
+					theta_rot, phi_rot = LorRot.angle( v3_in_hydrocell )
+					# then do the rotation
+					rotmomentum_Q = LorRot.rotation4(recoil_pQ, theta_rot, phi_rot)
+					rotmomentum_Qbar = LorRot.rotation4(recoil_pQbar, theta_rot, phi_rot)
+					# we now transform them back to the hydro cell frame
+					momentum_Q = LorRot.lorentz(rotmomentum_Q, -v3_in_hydrocell)
+					momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_hydrocell)
+					# then transform back to the lab frame
+					momentum_Q = LorRot.lorentz(momentum_Q, -T_Vxyz[1:])
+					momentum_Qbar = LorRot.lorentz(momentum_Qbar, -T_Vxyz[1:])
+
+					# positions of Q and Qbar
+					position_Q = self.U2Slist['3-position'][i]
+					#position_Qbar = position_Q
+		
+					# add x and p for the QQbar to the temporary list
+					add_pQ.append(momentum_Q)
+					add_pQbar.append(momentum_Qbar)
+					add_xQ.append(position_Q)
+					#add_xQbar.append(position_Qbar)
+					add_t23.append(self.t)
+					add_t32.append(self.t)
+					add_dt_last.append(0.0)		
 		### ------------------ end of decay ------------------- ###
 		
 		
@@ -248,9 +320,12 @@ class QQbar_evol:
 			
 			for i in range(len_Q):					# loop over Q
 				len_recoQbar = len(pair_list[i])
-				rate_reco_gluon = []
-				rate_reco_ineq = []
-				rate_reco_ineg = []
+				rate_reco1S_gluon = []
+				rate_reco1S_ineq = []
+				rate_reco1S_ineg = []
+				rate_reco2S_gluon = []
+				rate_reco2S_ineq = []
+				rate_reco2S_ineg = []
 				for j in range(len_recoQbar):		# loop over Qbar within R_search
 					# positions in lab frame
 					xQ = self.Qlist['3-position'][i]
@@ -268,7 +343,7 @@ class QQbar_evol:
 						p_CMlab = pQ_lab[1:] + pQbar_lab[1:]
 						E_CMlab = np.sqrt(np.sum(p_CMlab**2) + (2.*M)**2)
 						
-						# momenta in hydro cell frame
+						# momenta into hydro cell frame
 						pQ = LorRot.lorentz(pQ_lab, T_Vxyz[1:])
 						pQbar = LorRot.lorentz(pQbar_lab, T_Vxyz[1:])
 						
@@ -276,60 +351,61 @@ class QQbar_evol:
 						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
 						E_CM = 2.0*M/np.sqrt(1.-v_CM_abs**2)
 						
-						rate_reco_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
-						rate_reco_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
-						rate_reco_ineg.append(self.event.get_R1S_reco_ineg(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+						rate_reco1S_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+						rate_reco1S_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+						rate_reco1S_ineg.append(self.event.get_R1S_reco_ineg(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
 						# we move the E_CMcell / E_CMlab above from below to avoid non-defination
+						
+						# 2S reco rate:
+						if T_Vxyz[0] <= T_2S:
+							rate_reco2S_gluon.append(self.event.get_R2S_reco_gluon(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+							rate_reco2S_ineq.append(self.event.get_R2S_reco_ineq(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+							rate_reco2S_ineg.append(self.event.get_R2S_reco_ineg(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
+						else:
+							rate_reco2S_gluon.append(0.)
+							rate_reco2S_ineq.append(0.)
+							rate_reco2S_ineg.append(0.)
 					else:
-						rate_reco_gluon.append(0.)
-						rate_reco_ineq.append(0.)
-						rate_reco_ineg.append(0.)
-				
+						rate_reco1S_gluon.append(0.)
+						rate_reco1S_ineq.append(0.)
+						rate_reco1S_ineg.append(0.)
+						rate_reco2S_gluon.append(0.)
+						rate_reco2S_ineq.append(0.)
+						rate_reco2S_ineg.append(0.)
+							
 				# get the recombine probability in the hydro cell frame
 				# dt' in hydro cell = E_CMcell / E_CMlab * dt in lab frame
 				# 3/4 factor for Upsilon(1S) v.s. eta_b, 8/9 color octet
 				# the factor of 2 is for the theta function normalization, if use rdotp < 0
-				prob_reco_gluon = 2./3.*np.array(rate_reco_gluon)*dt/C1
-				prob_reco_ineq = 2./3.*np.array(rate_reco_ineq)*dt/C1
-				prob_reco_ineg = 2./3.*np.array(rate_reco_ineg)*dt/C1
-				total_prob_reco_gluon = np.sum(prob_reco_gluon)
-				total_prob_reco_ineq = np.sum(prob_reco_ineq)
-				total_prob_reco_ineg = np.sum(prob_reco_ineg)
+				prob_reco1S_gluon = 2./3.*np.array(rate_reco1S_gluon)*dt/C1
+				prob_reco1S_ineq = 2./3.*np.array(rate_reco1S_ineq)*dt/C1
+				prob_reco1S_ineg = 2./3.*np.array(rate_reco1S_ineg)*dt/C1
+				prob_reco2S_gluon = 2./3.*np.array(rate_reco2S_gluon)*dt/C1
+				prob_reco2S_ineq = 2./3.*np.array(rate_reco2S_ineq)*dt/C1
+				prob_reco2S_ineg = 2./3.*np.array(rate_reco2S_ineg)*dt/C1
+				prob_reco1S_all = prob_reco1S_gluon + prob_reco1S_ineq + prob_reco1S_ineg
+				prob_reco2S_all = prob_reco2S_gluon + prob_reco2S_ineq + prob_reco2S_ineg
+				total_prob_reco1S = np.sum(prob_reco1S_all)
+				total_prob_reco2S = np.sum(prob_reco2S_all)
 				rej_reco_mc = np.random.rand(1)
 				
-				if rej_reco_mc <= total_prob_reco_gluon + total_prob_reco_ineq + total_prob_reco_ineg:
+				if rej_reco_mc <= total_prob_reco1S:
 					delete_Q.append(i)		# remove this Q later
 					# find the Qbar we need to remove
-					if rej_reco_mc <= total_prob_reco_gluon:
-						a = 0.0
-						channel_reco = 'gluon'
-						for j in range(len_recoQbar):
-							if a <= rej_reco_mc <= a + prob_reco_gluon[j]:
-								k = j
-								break
-							a += prob_reco_gluon[j]
-						delete_Qbar.append(pair_list[i][k])
-						
-					elif rej_reco_mc <= total_prob_reco_gluon + total_prob_reco_ineq:
-						a = total_prob_reco_gluon
-						channel_reco = 'ineq'
-						for j in range(len_recoQbar):
-							if a <= rej_reco_mc <= a + prob_reco_ineq[j]:
-								k = j
-								break
-							a += prob_reco_ineq[j]
-						delete_Qbar.append(pair_list[i][k])
-						
-					else:
-						a = total_prob_reco_gluon + total_prob_reco_ineq
-						channel_reco = 'ineg'
-						for j in range(len_recoQbar):
-							if a <= rej_reco_mc <= a + prob_reco_ineg[j]:
-								k = j
-								break
-							a += prob_reco_ineg[j]
-						delete_Qbar.append(pair_list[i][k])
-
+					a = 0.0
+					for j in range(len_recoQbar):
+						if a <= rej_reco_mc <= a + prob_reco1S_all[j]:
+							k = j
+							if rej_reco_mc <= a + prob_reco1S_gluon[j]:
+								channel_reco = 'gluon'
+							elif rej_reco_mc <= a + prob_reco1S_gluon[j] + prob_reco1S_ineq[j]:
+								channel_reco = 'ineq'
+							else:
+								channel_reco = 'ineg'
+							break
+						a += prob_reco1S_all[j]
+					delete_Qbar.append(pair_list[i][k])
+					
 					# re-construct the reco event and sample initial and final states
 					# positions and local temperature
 					xQ = self.Qlist['3-position'][i]
@@ -374,6 +450,67 @@ class QQbar_evol:
 						self.U1Slist['3-position'] = np.append(self.U1Slist['3-position'], [position_U1S], axis=0)
 						self.U1Slist['last_form_time'] = np.append(self.U1Slist['last_form_time'], self.t)
 						
+				elif rej_reco_mc <= total_prob_reco1S + total_prob_reco2S:
+					delete_Q.append(i)		# remove this Q later
+					# find the Qbar we need to remove					
+					a = total_prob_reco1S
+					for j in range(len_recoQbar):
+						if a <= rej_reco_mc <= a + prob_reco2S_all[j]:
+							k = j
+							if rej_reco_mc <= a + prob_reco2S_gluon[j]:
+								channel_reco = 'gluon'
+							elif rej_reco_mc <= a + prob_reco2S_gluon[j] + prob_reco2S_ineq[j]:
+								channel_reco = 'ineq'
+							else:
+								channel_reco = 'ineg'
+							break
+						a += prob_reco2S_all[j]
+					delete_Qbar.append(pair_list[i][k])
+					
+					# re-construct the reco event and sample initial and final states
+					# positions and local temperature
+					xQ = self.Qlist['3-position'][i]
+					xQbar = self.Qbarlist['3-position'][pair_list[i][k]]
+					x_CM = 0.5*( xQ + xQbar )					
+					T_Vxyz = self.hydro.cell_info(self.t, x_CM)
+					
+					# 4-momenta in the hydro cell frame
+					pQ = LorRot.lorentz(self.Qlist['4-momentum'][i], T_Vxyz[1:])
+					pQbar = LorRot.lorentz(self.Qbarlist['4-momentum'][pair_list[i][k]], T_Vxyz[1:])
+					
+					# 3-velocity, velocity, relative momentum in hydro cell frame
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+
+					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
+					if channel_reco == 'gluon':
+						tempmomentum_U2S = np.array(self.event.sample_S2S_reco_gluon(v_CM_abs, T_Vxyz[0], p_rel_abs))
+					elif channel_reco == 'ineq':
+						tempmomentum_U2S = np.array(self.event.sample_S2S_reco_ineq(v_CM_abs, T_Vxyz[0], p_rel_abs))
+					else:	# 'ineg'
+						tempmomentum_U2S = np.array(self.event.sample_S2S_reco_ineg(v_CM_abs, T_Vxyz[0], p_rel_abs))
+					
+					# need to rotate the vector, v is not the z axis in hydro cell frame
+					theta_rot, phi_rot = LorRot.angle(v_CM)
+					rotmomentum_U2S = LorRot.rotation4(tempmomentum_U2S, theta_rot, phi_rot)
+
+					# lorentz back to the hydro cell frame
+					momentum_U2S = LorRot.lorentz( rotmomentum_U2S, -v_CM )
+					# lorentz back to the lab frame
+					momentum_U2S = LorRot.lorentz( momentum_U2S, -T_Vxyz[1:] )
+					
+					# positions of the quarkonium
+					position_U2S = x_CM
+					
+					# update the quarkonium list
+					if len(self.U2Slist['4-momentum']) == 0:
+						self.U2Slist['4-momentum'] = np.array([momentum_U2S])
+						self.U2Slist['3-position'] = np.array([position_U2S])
+						self.U2Slist['last_form_time'] = np.array([self.t])
+					else:
+						self.U2Slist['4-momentum'] = np.append(self.U2Slist['4-momentum'], [momentum_U2S], axis=0)
+						self.U2Slist['3-position'] = np.append(self.U2Slist['3-position'], [position_U2S], axis=0)
+						self.U2Slist['last_form_time'] = np.append(self.U2Slist['last_form_time'], self.t)
+						
 			## now update Q and Qbar lists
 			self.Qlist['4-momentum'] = np.delete(self.Qlist['4-momentum'], delete_Q, axis=0)
 			self.Qlist['3-position'] = np.delete(self.Qlist['3-position'], delete_Q, axis=0)
@@ -384,7 +521,7 @@ class QQbar_evol:
 			self.Qbarlist['3-position'] = np.delete(self.Qbarlist['3-position'], delete_Qbar, axis=0)
 			self.Qbarlist['last_t23'] = np.delete(self.Qbarlist['last_t23'], delete_Qbar)
 			self.Qbarlist['last_t32'] = np.delete(self.Qbarlist['last_t32'], delete_Qbar)
-			self.Qbarlist['last_scatter_dt'] = np.delete(self.Qbarlist['last_scatter_dt'], delete_Q)
+			self.Qbarlist['last_scatter_dt'] = np.delete(self.Qbarlist['last_scatter_dt'], delete_Qbar)
 		### -------------- end of recombination --------------- ###
 		
 		
@@ -401,6 +538,9 @@ class QQbar_evol:
 			self.U1Slist['3-position'] = np.delete(self.U1Slist['3-position'], delete_U1S, axis=0) # delete along the axis = 0
 			self.U1Slist['4-momentum'] = np.delete(self.U1Slist['4-momentum'], delete_U1S, axis=0)
 			self.U1Slist['last_form_time'] = np.delete(self.U1Slist['last_form_time'], delete_U1S)
+			self.U2Slist['3-position'] = np.delete(self.U2Slist['3-position'], delete_U2S, axis=0)
+			self.U2Slist['4-momentum'] = np.delete(self.U2Slist['4-momentum'], delete_U2S, axis=0)
+			self.U2Slist['last_form_time'] = np.delete(self.U2Slist['last_form_time'], delete_U2S)
 			
 			if len(self.Qlist['4-momentum']) == 0:
 				self.Qlist['3-position'] = np.array(add_xQ)
@@ -428,6 +568,7 @@ class QQbar_evol:
 				self.Qbarlist['last_scatter_dt'] = np.append(self.Qbarlist['last_scatter_dt'], add_dt_last)
 		### ---------- end of update lists due to decay ------- ###
 		
+
 #### ----------------- end of evolution function ----------------- ####	
 
 #### ----------------- define a clear function ------------------- ####
@@ -435,6 +576,7 @@ class QQbar_evol:
 		self.Qlist.clear()
 		self.Qbarlist.clear()
 		self.U1Slist.clear()
+		self.U2Slist.clear()
 
 
 
