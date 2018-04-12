@@ -512,7 +512,10 @@ cdef class DisRec(object):
 	# 1S inelastic quark dissociation
 	cpdef vector[double] sample_S1S_decay_ineq(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar
-		pQpQbar = S1S_decay_ineq(v, T)
+		if v < 0.999:
+			pQpQbar = S1S_decay_ineq(v, T)
+		else:
+			pQpQbar = S1S_decay_gluon(v, T, self.get_qdRdq_1S_gluon_max(v, T))
 		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
 		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
 		return np.concatenate((pQ, pQbar), axis=0)
@@ -520,7 +523,10 @@ cdef class DisRec(object):
 	# 1S inelastic gluon dissociation
 	cpdef vector[double] sample_S1S_decay_ineg(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar
-		pQpQbar = S1S_decay_ineg(v, T)
+		if v < 0.999:
+			pQpQbar = S1S_decay_ineg(v, T)
+		else:
+			pQpQbar = S1S_decay_gluon(v, T, self.get_qdRdq_1S_gluon_max(v, T))
 		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
 		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
 		return np.concatenate((pQ, pQbar), axis=0)
@@ -534,13 +540,19 @@ cdef class DisRec(object):
 	# 1S inelastic quark recombination
 	cpdef vector[double] sample_S1S_reco_ineq(self, double v, double T, double p_rel):
 		cdef vector[double] p1S
-		p1S = S1S_reco_ineq(v, T, p_rel)
+		if v < 0.999:
+			p1S = S1S_reco_ineq(v, T, p_rel)
+		else:
+			p1S = S1S_reco_gluon(v, T, p_rel)
 		return np.array(p3top4_quarkonia_1S(p1S))	# convert p3 to p4
 
 	# 1S inelastic gluon recombination
 	cpdef vector[double] sample_S1S_reco_ineg(self, double v, double T, double p_rel):
 		cdef vector[double] p1S
-		p1S = S1S_reco_ineg(v, T, p_rel)
+		if v < 0.999:
+			p1S = S1S_reco_ineg(v, T, p_rel)
+		else:
+			p1S = S1S_reco_gluon(v, T, p_rel)
 		return np.array(p3top4_quarkonia_1S(p1S))	# convert p3 to p4
 
 	# 2S gluon dissociation		
@@ -554,7 +566,10 @@ cdef class DisRec(object):
 	# 2S inelastic quark dissociation
 	cpdef vector[double] sample_S2S_decay_ineq(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar
-		pQpQbar = S2S_decay_ineq(v, T)
+		if v < 0.999:
+			pQpQbar = S2S_decay_ineq(v, T)
+		else:
+			pQpQbar = S2S_decay_gluon(v, T, self.get_qdRdq_2S_gluon_max(v, T))
 		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
 		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
 		return np.concatenate((pQ, pQbar), axis=0)
@@ -562,7 +577,10 @@ cdef class DisRec(object):
 	# 2S inelastic gluon dissociation
 	cpdef vector[double] sample_S2S_decay_ineg(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar
-		pQpQbar = S2S_decay_ineg(v, T)
+		if v < 0.999:
+			pQpQbar = S2S_decay_ineg(v, T)
+		else:
+			pQpQbar = S2S_decay_gluon(v, T, self.get_qdRdq_2S_gluon_max(v, T))
 		pQ = np.array(p3top4_Q(pQpQbar[0:3]))
 		pQbar = np.array(p3top4_Q(pQpQbar[3:6]))
 		return np.concatenate((pQ, pQbar), axis=0)
@@ -576,12 +594,18 @@ cdef class DisRec(object):
 	# 2S inelastic quark recombination
 	cpdef vector[double] sample_S2S_reco_ineq(self, double v, double T, double p_rel):
 		cdef vector[double] p2S
-		p2S = S2S_reco_ineq(v, T, p_rel)
+		if v < 0.999:
+			p2S = S2S_reco_ineq(v, T, p_rel)
+		else:
+			p2S = S2S_reco_gluon(v, T, p_rel)
 		return np.array(p3top4_quarkonia_2S(p2S))	# convert p3 to p4
 
 	# 2S inelastic gluon recombination
 	cpdef vector[double] sample_S2S_reco_ineg(self, double v, double T, double p_rel):
 		cdef vector[double] p2S
-		p2S = S2S_reco_ineg(v, T, p_rel)
+		if v < 0.999:
+			p2S = S2S_reco_ineg(v, T, p_rel)
+		else:
+			p2S = S2S_reco_gluon(v, T, p_rel)
 		return np.array(p3top4_quarkonia_2S(p2S))	# convert p3 to p4
 		
