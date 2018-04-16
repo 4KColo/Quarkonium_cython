@@ -18,7 +18,7 @@ double alpha_s(double Q2){
         return alpha0 * ( .5 - std::atan( std::log(Q2/Lambda2)/M_PI ) / M_PI );
 }
 double f_LPM(double x){
-	return 1. - cos(x);
+	return 2.0*(1. - cos(x));
 }
 //=============Debye mass=================================================
 Debye_mass * t_channel_mD2 = NULL;
