@@ -13,9 +13,12 @@ import LorRot
 
 Taa = {'2760': {'0-10': 23.0, '0-5': 26.32, '5-10': 20.56, '10-20': 14.39, '20-30': 8.6975, '30-40': 5.001, '40-50': 2.675, '50-100': 0.458}}		# mb^-1
 Xsect_bbbar = {'2760': 0.06453}		# mb
-Xsect_1S = {'2760': 0.0001788}
+Xsect_1S = {'2760': 0.000179}
 Xsect_2S = {'2760': 0.00004456}
-
+gamma_cut = np.cosh(5.0)	# v_max = 0.9999
+Mb = 4.65
+M1S = 9.46
+M2S = 10.023
 class Dynam_Initial_Sample:
 	### possible channels include 'corr', '1S', '2S'
 	def __init__(self, energy_GeV = 2760, centrality_str = '0-10', channel = 'corr'):
@@ -80,73 +83,85 @@ class Dynam_Initial_Sample:
 		for i in range(Nsam_bbbar):
 			r_bbbar = rd.uniform(0.0, Nsam_bbbar+0.0)
 			if r_bbbar <= N_bbbar:
-				## momenta
 				row_bbbar = 8*rd.randrange(0, len_bbbar-1, 1)
-				p4_Q.append( [p4_bbbar[row_bbbar], p4_bbbar[row_bbbar+1], p4_bbbar[row_bbbar+2], p4_bbbar[row_bbbar+3]] )
-				p4_Qbar.append( [p4_bbbar[row_bbbar+4], p4_bbbar[row_bbbar+5], p4_bbbar[row_bbbar+6], p4_bbbar[row_bbbar+7]] )
-				## positions
-				r_xy = rd.uniform(0.0, 1.0)
-				i_bbbar = np.searchsorted(T_accum, r_xy)
-				i_x = np.floor((i_bbbar+0.0)/Ny)
-				i_y = i_bbbar - i_x*Ny
-				i_x += np.random.rand()
-				i_y += np.random.rand()
-				x = (i_x - Nx/2.)*dx
-				y = (i_y - Ny/2.)*dy
-				x3_Q.append(np.array([x,y,0.0]))
-				x3_Qbar.append(np.array([x,y,0.0]))
+				if p4_bbbar[row_bbbar] < gamma_cut * Mb and p4_bbbar[row_bbbar+4] < gamma_cut * Mb:
+					## momenta
+					p4_Q.append( [p4_bbbar[row_bbbar], p4_bbbar[row_bbbar+1], p4_bbbar[row_bbbar+2], p4_bbbar[row_bbbar+3]] )
+					p4_Qbar.append( [p4_bbbar[row_bbbar+4], p4_bbbar[row_bbbar+5], p4_bbbar[row_bbbar+6], p4_bbbar[row_bbbar+7]] )
+					## positions
+					r_xy = rd.uniform(0.0, 1.0)
+					i_bbbar = np.searchsorted(T_accum, r_xy)
+					i_x = np.floor((i_bbbar+0.0)/Ny)
+					i_y = i_bbbar - i_x*Ny
+					i_x += np.random.rand()
+					i_y += np.random.rand()
+					x = (i_x - Nx/2.)*dx
+					y = (i_y - Ny/2.)*dy
+					x3_Q.append(np.array([x,y,0.0]))
+					x3_Qbar.append(np.array([x,y,0.0]))
 		
 		if channel == 'corr':
-			## momenta
 			## it is like sampling nS but divide p4 by two, give each to b and bbar
-			row_corr = 4*rd.randrange(0, len_corr-1, 1)
-			p4_corr = [ p4_corr[row_corr]/2., p4_corr[row_corr+1]/2., p4_corr[row_corr+2]/2., p4_corr[row_corr+3]/2. ]
-			p4_Q.append(p4_corr)
-			p4_Qbar.append(p4_corr)
-			## positions
-			r_xy = rd.uniform(0.0, 1.0)
-			i_bbbar = np.searchsorted(T_accum, r_xy)
-			i_x = np.floor((i_bbbar+0.0)/Ny)
-			i_y = i_bbbar - i_x*Ny
-			i_x += np.random.rand()
-			i_y += np.random.rand()
-			x = (i_x - Nx/2.)*dx
-			y = (i_y - Ny/2.)*dy
-			x3_Q.append(np.array([x,y,0.0]))
-			x3_Qbar.append(np.array([x,y,0.0]))
+			count = 0
+			while count == 0:
+				row_corr = 4*rd.randrange(0, len_corr-1, 1)
+				if p4_corr[row_corr]/2. < gamma_cut * Mb:
+					count += 1
+					## momenta
+					p4_bbbar = [ p4_corr[row_corr]/2., p4_corr[row_corr+1]/2., p4_corr[row_corr+2]/2., p4_corr[row_corr+3]/2. ]
+					p4_Q.append(p4_bbbar)
+					p4_Qbar.append(p4_bbbar)
+					## positions
+					r_xy = rd.uniform(0.0, 1.0)
+					i_bbbar = np.searchsorted(T_accum, r_xy)
+					i_x = np.floor((i_bbbar+0.0)/Ny)
+					i_y = i_bbbar - i_x*Ny
+					i_x += np.random.rand()
+					i_y += np.random.rand()
+					x = (i_x - Nx/2.)*dx
+					y = (i_y - Ny/2.)*dy
+					x3_Q.append(np.array([x,y,0.0]))
+					x3_Qbar.append(np.array([x,y,0.0]))
 			
 		## since the bottomonia cross sections are too small
 		## we only sample cases where bottomonia are produced			
 		if channel == '1S':
-			## momenta
-			row_1S = 4*rd.randrange(0, len_1S-1, 1)
-			p4_U1S.append( [p4_1S[row_1S], p4_1S[row_1S+1], p4_1S[row_1S+2], p4_1S[row_1S+3]] )
-			## positions
-			r_xy = rd.uniform(0.0, 1.0)
-			i_1S = np.searchsorted(T_accum, r_xy)
-			i_x = np.floor((i_1S+0.0)/Ny)
-			i_y = i_1S - i_x*Ny
-			i_x += np.random.rand()
-			i_y += np.random.rand()
-			x = (i_x - Nx/2.)*dx
-			y = (i_y - Ny/2.)*dy
-			x3_1S.append(np.array([x,y,0.0]))
+			count = 0
+			while count == 0:
+				row_1S = 4*rd.randrange(0, len_1S-1, 1)
+				if p4_1S[row_1S] < gamma_cut * M1S:
+					count += 1
+					## momenta
+					p4_U1S.append( [p4_1S[row_1S], p4_1S[row_1S+1], p4_1S[row_1S+2], p4_1S[row_1S+3]] )
+					## positions
+					r_xy = rd.uniform(0.0, 1.0)
+					i_1S = np.searchsorted(T_accum, r_xy)
+					i_x = np.floor((i_1S+0.0)/Ny)
+					i_y = i_1S - i_x*Ny
+					i_x += np.random.rand()
+					i_y += np.random.rand()
+					x = (i_x - Nx/2.)*dx
+					y = (i_y - Ny/2.)*dy
+					x3_1S.append(np.array([x,y,0.0]))
 		
 		if channel == '2S':
-			## momenta
-			#row_2S = 4*rd.randrange(0, len_2S-1, 1)
-			row_2S = 0
-			p4_U2S.append( [p4_2S[row_2S], p4_2S[row_2S+1], p4_2S[row_2S+2], p4_2S[row_2S+3]] )
-			## positions
-			r_xy = rd.uniform(0.0, 1.0)
-			i_2S = np.searchsorted(T_accum, r_xy)
-			i_x = np.floor((i_2S+0.0)/Ny)
-			i_y = i_2S - i_x*Ny
-			i_x += np.random.rand()
-			i_y += np.random.rand()
-			x = (i_x - Nx/2.)*dx
-			y = (i_y - Ny/2.)*dy
-			x3_2S.append(np.array([x,y,0.0]))
+			count = 0
+			while count == 0:
+				row_2S = 4*rd.randrange(0, len_2S-1, 1)
+				if p4_2S[row_2S] < gamma_cut * M2S:
+					count += 1
+					## momenta
+					p4_U2S.append( [p4_2S[row_2S], p4_2S[row_2S+1], p4_2S[row_2S+2], p4_2S[row_2S+3]] )
+					## positions
+					r_xy = rd.uniform(0.0, 1.0)
+					i_2S = np.searchsorted(T_accum, r_xy)
+					i_x = np.floor((i_2S+0.0)/Ny)
+					i_y = i_2S - i_x*Ny
+					i_x += np.random.rand()
+					i_y += np.random.rand()
+					x = (i_x - Nx/2.)*dx
+					y = (i_y - Ny/2.)*dy
+					x3_2S.append(np.array([x,y,0.0]))
 					
 		self.x3_Q = np.array(x3_Q)
 		self.x3_Qbar = np.array(x3_Qbar)
