@@ -320,9 +320,10 @@ double S1S_decay_ineq_p1(double p1low, double p1up, void * params_){// not used!
 }
 // importance sampling of p1 works much faster than the above inverse function method, considering the overall efficiency;
 // if use inverse function method, p1 sampling is easy, but the remaining integrand is a quadratic, divergent at large p1, efficiency of rejection is very low;
-double S1S_decay_ineq_p1_important(double p1low, double p1up, void * params_){
+double S1S_decay_ineq_p1_important(double p1low, double p1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_p1_decay1S_important, params, p1low, p1up);
+    // result_max is an input
+    //double result_max = find_max(&f_p1_decay1S_important, params, p1low, p1up);
     double result_try, p1_try;
     do{
         p1_try = sample_inel(gen)*(p1up-p1low) + p1low;
@@ -341,7 +342,8 @@ double S1S_decay_ineq_cos1(double p1, void * params_){
 }
 
 
-std::vector<double> S1S_decay_ineq(double v, double T){
+std::vector<double> S1S_decay_ineq(double v, double T, double maximum){
+    // maximum is the input for S1S_decay_ineq_p1_important
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
@@ -361,7 +363,7 @@ std::vector<double> S1S_decay_ineq(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
-        p1_try = S1S_decay_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S1S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);  // give the maximum as result_max to S1S_decay_ineq_p1_important
         p2_try = p1_try - E1S - p_rel*p_rel/M;
         if (p2_try <= 0.0){
             result_try = 0.0;
@@ -396,7 +398,7 @@ std::vector<double> S1S_decay_ineq(double v, double T){
 }
 
 
-std::vector<double> S1S_decay_ineq_test(double v, double T){
+std::vector<double> S1S_decay_ineq_test(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
@@ -416,7 +418,7 @@ std::vector<double> S1S_decay_ineq_test(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
 
-        p1_try = S1S_decay_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S1S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
         p2_try = p1_try - E1S - p_rel*p_rel/M;
         if (p2_try <= 0.0){
             result_try = 0.0;
@@ -517,9 +519,9 @@ double f_q1_decay1S_important(double q1, void * params_){
 }
 
 // inverse function method to sample q1
-double S1S_decay_ineg_q1_important(double q1low, double q1up, void * params_){
+double S1S_decay_ineg_q1_important(double q1low, double q1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_q1_decay1S_important, params, q1low, q1up);
+    //double result_max = find_max(&f_q1_decay1S_important, params, q1low, q1up);
     double result_try, q1_try;
     do{
         q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
@@ -537,7 +539,7 @@ double S1S_decay_ineg_cos1(double q1, void * params_){
     return -(1. + std::log( 1.-std::exp(C) )/B )/v;
 }
 
-std::vector<double> S1S_decay_ineg(double v, double T){
+std::vector<double> S1S_decay_ineg(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
@@ -558,7 +560,7 @@ std::vector<double> S1S_decay_ineg(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
-        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
         q2_try = q1_try - E1S - p_rel*p_rel/M;
         if (q2_try <= 0.0){
             result_try = 0.0;
@@ -591,7 +593,7 @@ std::vector<double> S1S_decay_ineg(double v, double T){
     return pQpQbar_final;
 }
 
-std::vector<double> S1S_decay_ineg_test(double v, double T){
+std::vector<double> S1S_decay_ineg_test(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
@@ -612,7 +614,7 @@ std::vector<double> S1S_decay_ineg_test(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
-        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S1S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
         q2_try = q1_try - E1S - p_rel*p_rel/M;
         if (q2_try <= 0.0){
             result_try = 0.0;
@@ -765,9 +767,9 @@ double f_p1_reco1S_important(double p1, void * params_){
 
 // importance sampling of p1 works much faster than the inverse function method, considering the overall efficiency;
 // if use inverse function method, p1 sampling is easy, but the remaining integrand is a quadratic, divergent at large p1, efficiency of rejection is very low;
-double S1S_reco_ineq_p1_important(double p1low, double p1up, void * params_){
+double S1S_reco_ineq_p1_important(double p1low, double p1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_p1_reco1S_important, params, p1low, p1up);
+    //double result_max = find_max(&f_p1_reco1S_important, params, p1low, p1up);
     double result_try, p1_try;
     do{
         p1_try = sample_inel(gen)*(p1up-p1low) + p1low;
@@ -776,7 +778,7 @@ double S1S_reco_ineq_p1_important(double p1low, double p1up, void * params_){
     return p1_try;
 }
 
-std::vector<double> S1S_reco_ineq(double v, double T, double p){
+std::vector<double> S1S_reco_ineq(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
@@ -794,7 +796,7 @@ std::vector<double> S1S_reco_ineq(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        p1_try = S1S_reco_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S1S_reco_ineq_p1_important(p1low, p1up, maximum, params_p1);
         c1_try = S1S_decay_ineq_cos1(p1_try, params_c1);
         p2_try = p1_try + E_rel + E1S;
         c2_try = sample_cos(gen);
@@ -816,7 +818,7 @@ std::vector<double> S1S_reco_ineq(double v, double T, double p){
     return p1S_final;
 }
 
-std::vector<double> S1S_reco_ineq_test(double v, double T, double p){
+std::vector<double> S1S_reco_ineq_test(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
@@ -834,7 +836,7 @@ std::vector<double> S1S_reco_ineq_test(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        p1_try = S1S_reco_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S1S_reco_ineq_p1_important(p1low, p1up, maximum, params_p1);
         c1_try = S1S_decay_ineq_cos1(p1_try, params_c1);
         p2_try = p1_try + E_rel + E1S;
         c2_try = sample_cos(gen);
@@ -917,9 +919,9 @@ double f_q1_reco1S_important(double q1, void * params_){
 }
 
 // importance sampling of q1
-double S1S_reco_ineg_q1_important(double q1low, double q1up, void * params_){
+double S1S_reco_ineg_q1_important(double q1low, double q1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_q1_reco1S_important, params, q1low, q1up);
+    //double result_max = find_max(&f_q1_reco1S_important, params, q1low, q1up);
     double result_try, q1_try;
     do{
         q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
@@ -928,7 +930,7 @@ double S1S_reco_ineg_q1_important(double q1low, double q1up, void * params_){
     return q1_try;
 }
 
-std::vector<double> S1S_reco_ineg(double v, double T, double p){
+std::vector<double> S1S_reco_ineg(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
@@ -947,7 +949,7 @@ std::vector<double> S1S_reco_ineg(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, maximum, params_q1);
         c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
         q2_try = q1_try + E_rel + E1S;
         c2_try = sample_cos(gen);
@@ -969,7 +971,7 @@ std::vector<double> S1S_reco_ineg(double v, double T, double p){
     return p1S_final;
 }
 
-std::vector<double> S1S_reco_ineg_test(double v, double T, double p){
+std::vector<double> S1S_reco_ineg_test(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
@@ -988,7 +990,7 @@ std::vector<double> S1S_reco_ineg_test(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S1S_reco_ineg_q1_important(q1low, q1up, maximum, params_q1);
         c1_try = S1S_decay_ineg_cos1(q1_try, params_c1);
         q2_try = q1_try + E_rel + E1S;
         c2_try = sample_cos(gen);
@@ -1231,9 +1233,9 @@ double S2S_decay_ineq_p1(double p1low, double p1up, void * params_){
 }
 // importance sampling of p1 works much faster than the above inverse function method, considering the overall efficiency;
 // if use inverse function method, p1 sampling is easy, but the remaining integrand is a quadratic, divergent at large p1, efficiency of rejection is very low;
-double S2S_decay_ineq_p1_important(double p1low, double p1up, void * params_){
+double S2S_decay_ineq_p1_important(double p1low, double p1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_p1_decay2S_important, params, p1low, p1up);
+    //double result_max = find_max(&f_p1_decay2S_important, params, p1low, p1up);
     double result_try, p1_try;
     do{
         p1_try = sample_inel(gen)*(p1up-p1low) + p1low;
@@ -1252,7 +1254,7 @@ double S2S_decay_ineq_cos1(double p1, void * params_){
 }
 
 
-std::vector<double> S2S_decay_ineq(double v, double T){
+std::vector<double> S2S_decay_ineq(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
@@ -1272,7 +1274,7 @@ std::vector<double> S2S_decay_ineq(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
-        p1_try = S2S_decay_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S2S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
         p2_try = p1_try - E2S - p_rel*p_rel/M;
         if (p2_try <= 0.0){
             result_try = 0.0;
@@ -1306,7 +1308,7 @@ std::vector<double> S2S_decay_ineq(double v, double T){
 }
 
 
-std::vector<double> S2S_decay_ineq_test(double v, double T){
+std::vector<double> S2S_decay_ineq_test(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, p1p2, part_angle, result_try, p1p2_try;
@@ -1326,7 +1328,7 @@ std::vector<double> S2S_decay_ineq_test(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
-        p1_try = S2S_decay_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S2S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
         p2_try = p1_try - E2S - p_rel*p_rel/M;
         if (p2_try <= 0.0){
             result_try = 0.0;
@@ -1426,9 +1428,9 @@ double f_q1_decay2S_important(double q1, void * params_){
 }
 
 // inverse function method to sample q1
-double S2S_decay_ineg_q1_important(double q1low, double q1up, void * params_){
+double S2S_decay_ineg_q1_important(double q1low, double q1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_q1_decay2S_important, params, q1low, q1up);
+    //double result_max = find_max(&f_q1_decay2S_important, params, q1low, q1up);
     double result_try, q1_try;
     do{
         q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
@@ -1446,7 +1448,7 @@ double S2S_decay_ineg_cos1(double q1, void * params_){
     return -(1. + std::log( 1.-std::exp(C) )/B )/v;
 }
 
-std::vector<double> S2S_decay_ineg(double v, double T){
+std::vector<double> S2S_decay_ineg(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
@@ -1467,7 +1469,7 @@ std::vector<double> S2S_decay_ineg(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
-        q1_try = S2S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S2S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
         q2_try = q1_try - E2S - p_rel*p_rel/M;
         if (q2_try <= 0.0){
             result_try = 0.0;
@@ -1500,7 +1502,7 @@ std::vector<double> S2S_decay_ineg(double v, double T){
     return pQpQbar_final;
 }
 
-std::vector<double> S2S_decay_ineg_test(double v, double T){
+std::vector<double> S2S_decay_ineg_test(double v, double T, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p_rel, q1q2, q1q2_try, part_angle, result_try;
@@ -1521,7 +1523,7 @@ std::vector<double> S2S_decay_ineg_test(double v, double T){
             p_rel = sample_inel(gen)*3.0;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
-        q1_try = S2S_decay_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S2S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
         q2_try = q1_try - E2S - p_rel*p_rel/M;
         if (q2_try <= 0.0){
             result_try = 0.0;
@@ -1673,9 +1675,9 @@ double f_p1_reco2S_important(double p1, void * params_){
 
 // importance sampling of p1 works much faster than the inverse function method, considering the overall efficiency;
 // if use inverse function method, p1 sampling is easy, but the remaining integrand is a quadratic, divergent at large p1, efficiency of rejection is very low;
-double S2S_reco_ineq_p1_important(double p1low, double p1up, void * params_){
+double S2S_reco_ineq_p1_important(double p1low, double p1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_p1_reco2S_important, params, p1low, p1up);
+    //double result_max = find_max(&f_p1_reco2S_important, params, p1low, p1up);
     double result_try, p1_try;
     do{
         p1_try = sample_inel(gen)*(p1up-p1low) + p1low;
@@ -1684,7 +1686,7 @@ double S2S_reco_ineq_p1_important(double p1low, double p1up, void * params_){
     return p1_try;
 }
 
-std::vector<double> S2S_reco_ineq(double v, double T, double p){
+std::vector<double> S2S_reco_ineq(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
@@ -1702,7 +1704,7 @@ std::vector<double> S2S_reco_ineq(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        p1_try = S2S_reco_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S2S_reco_ineq_p1_important(p1low, p1up, maximum, params_p1);
         c1_try = S2S_decay_ineq_cos1(p1_try, params_c1);
         p2_try = p1_try + E_rel + E2S;
         c2_try = sample_cos(gen);
@@ -1724,7 +1726,7 @@ std::vector<double> S2S_reco_ineq(double v, double T, double p){
     return p2S_final;
 }
 
-std::vector<double> S2S_reco_ineq_test(double v, double T, double p){
+std::vector<double> S2S_reco_ineq_test(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double p1_try, c1_try, s1_try, p2_try, c2_try, s2_try, phi_try, c_phi, s_phi, p1p2_try, part_angle, result_try;
@@ -1742,7 +1744,7 @@ std::vector<double> S2S_reco_ineq_test(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        p1_try = S2S_reco_ineq_p1_important(p1low, p1up, params_p1);
+        p1_try = S2S_reco_ineq_p1_important(p1low, p1up, maximum, params_p1);
         c1_try = S2S_decay_ineq_cos1(p1_try, params_c1);
         p2_try = p1_try + E_rel + E2S;
         c2_try = sample_cos(gen);
@@ -1825,9 +1827,9 @@ double f_q1_reco2S_important(double q1, void * params_){
 }
 
 // importance sampling of q1
-double S2S_reco_ineg_q1_important(double q1low, double q1up, void * params_){
+double S2S_reco_ineg_q1_important(double q1low, double q1up, double result_max, void * params_){
     double * params = static_cast<double *>(params_);
-    double result_max = find_max(&f_q1_reco2S_important, params, q1low, q1up);
+    //double result_max = find_max(&f_q1_reco2S_important, params, q1low, q1up);
     double result_try, q1_try;
     do{
         q1_try = sample_inel(gen)*(q1up-q1low) + q1low;
@@ -1836,7 +1838,7 @@ double S2S_reco_ineg_q1_important(double q1low, double q1up, void * params_){
     return q1_try;
 }
 
-std::vector<double> S2S_reco_ineg(double v, double T, double p){
+std::vector<double> S2S_reco_ineg(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
@@ -1855,7 +1857,7 @@ std::vector<double> S2S_reco_ineg(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        q1_try = S2S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S2S_reco_ineg_q1_important(q1low, q1up, maximum, params_q1);
         c1_try = S2S_decay_ineg_cos1(q1_try, params_c1);
         q2_try = q1_try + E_rel + E2S;
         c2_try = sample_cos(gen);
@@ -1877,7 +1879,7 @@ std::vector<double> S2S_reco_ineg(double v, double T, double p){
     return p2S_final;
 }
 
-std::vector<double> S2S_reco_ineg_test(double v, double T, double p){
+std::vector<double> S2S_reco_ineg_test(double v, double T, double p, double maximum){
     v = std::max(v, small_number);
     double gamma = 1./std::sqrt(1.-v*v);
     double q1_try, c1_try, s1_try, q2_try, c2_try, s2_try, phi_try, c_phi, s_phi, q1q2_try, part_angle, result_try;
@@ -1896,7 +1898,7 @@ std::vector<double> S2S_reco_ineg_test(double v, double T, double p){
     params_c1[1] = gamma/T;
     
     do{
-        q1_try = S2S_reco_ineg_q1_important(q1low, q1up, params_q1);
+        q1_try = S2S_reco_ineg_q1_important(q1low, q1up, maximum, params_q1);
         c1_try = S2S_decay_ineg_cos1(q1_try, params_c1);
         q2_try = q1_try + E_rel + E2S;
         c2_try = sample_cos(gen);

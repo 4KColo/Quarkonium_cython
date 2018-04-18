@@ -66,18 +66,18 @@ double f_p1(double p1, void * params_);
 double I_f_p1(double p1max, void * params_);
 double f_p1_decay1S_important(double p1, void * params_);
 double S1S_decay_ineq_p1(double p1low, double p1up, void * params_);
-double S1S_decay_ineq_p1_important(double p1low, double p1up, void * params_);
+double S1S_decay_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
 double S1S_decay_ineq_cos1(double p1, void * params_);
-std::vector<double> S1S_decay_ineq(double v, double T);
-std::vector<double> S1S_decay_ineq_test(double v, double T);
+std::vector<double> S1S_decay_ineq(double v, double T, double maximum);
+std::vector<double> S1S_decay_ineq_test(double v, double T, double maximum);
 // inelastic gluon dissociation
 double dRdq1dq2_1S_decay_ineg(double x[5], size_t dim, void * params_);
 double R1S_decay_ineg(double v, double T);
 double f_q1_decay1S_important(double q1, void * params_);
-double S1S_decay_ineg_q1_important(double q1low, double q1up, void * params_);
+double S1S_decay_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
 double S1S_decay_ineg_cos1(double q1, void * params_);
-std::vector<double> S1S_decay_ineg(double v, double T);
-std::vector<double> S1S_decay_ineg_test(double v, double T);
+std::vector<double> S1S_decay_ineg(double v, double T, double maximum);
+std::vector<double> S1S_decay_ineg_test(double v, double T, double maximum);
 
 // real gluon recombination
 double RV1S_reco_gluon(double v, double T, double p);
@@ -89,16 +89,16 @@ std::vector<double> S1S_reco_gluon(double v, double T, double p);
 double dRdp1dp2_1S_reco_ineq(double x[4], size_t dim, void * params_);
 double RV1S_reco_ineq(double v, double T, double p);
 double f_p1_reco1S_important(double p1, void * params_);
-double S1S_reco_ineq_p1_important(double p1low, double p1up, void * params_);
-std::vector<double> S1S_reco_ineq(double v, double T, double p);
-std::vector<double> S1S_reco_ineq_test(double v, double T, double p);
-// inelastic gluon dissociation
+double S1S_reco_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
+std::vector<double> S1S_reco_ineq(double v, double T, double p, double maximum);
+std::vector<double> S1S_reco_ineq_test(double v, double T, double p, double maximum);
+// inelastic gluon recombination
 double dRdq1dq2_1S_reco_ineg(double x[4], size_t dim, void * params_);
 double RV1S_reco_ineg(double v, double T, double p);
 double f_q1_reco1S_important(double q1, void * params_);
-double S1S_reco_ineg_q1_important(double q1low, double q1up, void * params_);
-std::vector<double> S1S_reco_ineg(double v, double T, double p);
-std::vector<double> S1S_reco_ineg_test(double v, double T, double p);
+double S1S_reco_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
+std::vector<double> S1S_reco_ineg(double v, double T, double p, double maximum);
+std::vector<double> S1S_reco_ineg_test(double v, double T, double p, double maximum);
 
 
 // --------------------- 2S -----------------------
@@ -121,18 +121,18 @@ double dRdp1dp2_2S_decay_ineq(double x[5], size_t dim, void * params_);
 double R2S_decay_ineq(double v, double T);
 double f_p1_decay2S_important(double p1, void * params_);
 double S2S_decay_ineq_p1(double p1low, double p1up, void * params_);
-double S2S_decay_ineq_p1_important(double p1low, double p1up, void * params_);
+double S2S_decay_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
 double S2S_decay_ineq_cos1(double p1, void * params_);
-std::vector<double> S2S_decay_ineq(double v, double T);
-std::vector<double> S2S_decay_ineq_test(double v, double T);
+std::vector<double> S2S_decay_ineq(double v, double T, double maximum);
+std::vector<double> S2S_decay_ineq_test(double v, double T, double maximum);
 // inelastic gluon dissociation
 double dRdq1dq2_2S_decay_ineg(double x[5], size_t dim, void * params_);
 double R2S_decay_ineg(double v, double T);
 double f_q1_decay2S_important(double q1, void * params_);
-double S2S_decay_ineg_q1_important(double q1low, double q1up, void * params_);
+double S2S_decay_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
 double S2S_decay_ineg_cos1(double q1, void * params_);
-std::vector<double> S2S_decay_ineg(double v, double T);
-std::vector<double> S2S_decay_ineg_test(double v, double T);
+std::vector<double> S2S_decay_ineg(double v, double T, double maximum);
+std::vector<double> S2S_decay_ineg_test(double v, double T, double maximum);
 
 // real gluon recombination
 double RV2S_reco_gluon(double v, double T, double p);
@@ -144,16 +144,16 @@ std::vector<double> S2S_reco_gluon(double v, double T, double p);
 double dRdp1dp2_2S_reco_ineq(double x[4], size_t dim, void * params_);
 double RV2S_reco_ineq(double v, double T, double p);
 double f_p1_reco2S_important(double p1, void * params_);
-double S2S_reco_ineq_p1_important(double p1low, double p1up, void * params_);
-std::vector<double> S2S_reco_ineq(double v, double T, double p);
-std::vector<double> S2S_reco_ineq_test(double v, double T, double p);
+double S2S_reco_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
+std::vector<double> S2S_reco_ineq(double v, double T, double p, double maximum);
+std::vector<double> S2S_reco_ineq_test(double v, double T, double p, double maximum);
 // inelastic gluon dissociation
 double dRdq1dq2_2S_reco_ineg(double x[4], size_t dim, void * params_);
 double RV2S_reco_ineg(double v, double T, double p);
 double f_q1_reco2S_important(double q1, void * params_);
-double S2S_reco_ineg_q1_important(double q1low, double q1up, void * params_);
-std::vector<double> S2S_reco_ineg(double v, double T, double p);
-std::vector<double> S2S_reco_ineg_test(double v, double T, double p);
+double S2S_reco_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
+std::vector<double> S2S_reco_ineg(double v, double T, double p, double maximum);
+std::vector<double> S2S_reco_ineg_test(double v, double T, double p, double maximum);
 
 
 // change polar coordinates to cartisian coordinates
