@@ -16,6 +16,7 @@ Xsect_bbbar = {'2760': 0.06453}		# mb
 Xsect_1S = {'2760': 0.000179}
 Xsect_2S = {'2760': 0.00004456}
 gamma_cut = np.cosh(5.0)	# v_max = 0.9999
+Vz_cut = 0.995
 Mb = 4.65
 M1S = 9.46
 M2S = 10.023
@@ -129,7 +130,7 @@ class Dynam_Initial_Sample:
 			count = 0
 			while count == 0:
 				row_1S = 4*rd.randrange(0, len_1S-1, 1)
-				if p4_1S[row_1S] < gamma_cut * M1S:
+				if p4_1S[row_1S] < gamma_cut * M1S and p4_1S[row_1S+3]/p4_1S[row_1S] < Vz_cut:
 					count += 1
 					## momenta
 					p4_U1S.append( [p4_1S[row_1S], p4_1S[row_1S+1], p4_1S[row_1S+2], p4_1S[row_1S+3]] )
@@ -148,7 +149,7 @@ class Dynam_Initial_Sample:
 			count = 0
 			while count == 0:
 				row_2S = 4*rd.randrange(0, len_2S-1, 1)
-				if p4_2S[row_2S] < gamma_cut * M2S:
+				if p4_2S[row_2S] < gamma_cut * M2S and p4_2S[row_2S+3]/p4_2S[row_2S] < Vz_cut:
 					count += 1
 					## momenta
 					p4_U2S.append( [p4_2S[row_2S], p4_2S[row_2S+1], p4_2S[row_2S+2], p4_2S[row_2S+3]] )
