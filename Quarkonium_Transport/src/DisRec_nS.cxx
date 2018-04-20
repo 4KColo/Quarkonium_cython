@@ -116,7 +116,7 @@ double Xsec1S(double q){
 double Xsec1S_v2(double q){
     if (q <= E1S) return 0.;
     double p = std::sqrt(M*(q-E1S));
-    return 2./3.*fix_alpha_s*CF*M*q*p*Matrix1S(p);
+    return Xsec1S_v2_prefactor*q*p*Matrix1S(p);
 }
 
 // differential decay rate dR/dq, q is the momentum of incident gluon
@@ -1045,7 +1045,7 @@ double p2Matrix2S(double p){
 double Xsec2S(double q){
     if (q <= E2S) return 0.;
     double p = std::sqrt(M*(q-E2S));
-    return 2./3.*fix_alpha_s*CF*M*q*p*Matrix2S(p);
+    return Xsec1S_v2_prefactor*q*p*Matrix2S(p);
 }
 
 // differential decay rate dR/dq, q is the momentum of incident gluon

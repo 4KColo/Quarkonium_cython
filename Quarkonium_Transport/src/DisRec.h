@@ -11,11 +11,13 @@ const double alpha_s_sqd = fix_alpha_s*fix_alpha_s;
 // ------------------------- 1S: ---------------------------
 const double Matrix1S_prefactor = pow(2., 9) * pow(M_PI, 2) * pow(a_B, 5) * pow(2.+rho_c, 2);
 
-const double Matrix1S_scale = fix_alpha_s*M/(4.*Nc);
+const double Matrix1S_scale = pot_alpha_s*M/(4.*Nc);
 
 const double Xsec1S_prefactor = fix_alpha_s*CF/3.0 * pow(2.0,10)
 							* pow(M_PI, 2) * rho_c*pow(2.0+rho_c, 2)
 							* pow(E1S, 4) / M;
+
+const double Xsec1S_v2_prefactor = 2./3.*fix_alpha_s*CF*M;
 
 const double RV1S_prefactor = 2.*fix_alpha_s * TF / (3.*Nc); //gluo-recombination prefactor
 
@@ -28,15 +30,14 @@ const double dRdq1dq2_1S_decay_prefactor = alpha_s_sqd/6./pow(M_PI,4);
 const double dRdq1dq2_1S_reco_prefactor = alpha_s_sqd/24./M_PI/M_PI;
 // above line: gluon inelastic reco
 
-const double max_pMatrix1S = 134.0;  // used in rejection method
-const double max_p2Matrix1S = 88.0; // used in rejection method
+const double max_p2Matrix1S = 88.0; // used in rejection method, for pot_alpha_s = 0.3
 
 // ------------------------- 2S: ---------------------------
 const double Matrix2S_prefactor = pow(2., 16) * pow(M_PI, 2) * pow(a_B, 5);
 
 const double Matrix2S_term = 2. * (2.*rho_c_sq + 5.*rho_c + 3.);
 
-const double max_p2Matrix2S = 4163.4; // used in rejection method
+const double max_p2Matrix2S = 4163.4; // used in rejection method, for pot_alpha_s = 0.3
 
 
 
