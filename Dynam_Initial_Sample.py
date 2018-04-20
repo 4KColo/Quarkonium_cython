@@ -130,7 +130,7 @@ class Dynam_Initial_Sample:
 			count = 0
 			while count == 0:
 				row_1S = 4*rd.randrange(0, len_1S-1, 1)
-				if p4_1S[row_1S] < gamma_cut * M1S and p4_1S[row_1S+3]/p4_1S[row_1S] < Vz_cut:
+				if p4_1S[row_1S] < gamma_cut * M1S and abs(p4_1S[row_1S+3]/p4_1S[row_1S]) < Vz_cut:
 					count += 1
 					## momenta
 					p4_U1S.append( [p4_1S[row_1S], p4_1S[row_1S+1], p4_1S[row_1S+2], p4_1S[row_1S+3]] )
@@ -149,7 +149,7 @@ class Dynam_Initial_Sample:
 			count = 0
 			while count == 0:
 				row_2S = 4*rd.randrange(0, len_2S-1, 1)
-				if p4_2S[row_2S] < gamma_cut * M2S and p4_2S[row_2S+3]/p4_2S[row_2S] < Vz_cut:
+				if p4_2S[row_2S] < gamma_cut * M2S and abs(p4_2S[row_2S+3]/p4_2S[row_2S]) < Vz_cut:
 					count += 1
 					## momenta
 					p4_U2S.append( [p4_2S[row_2S], p4_2S[row_2S+1], p4_2S[row_2S+2], p4_2S[row_2S+3]] )
