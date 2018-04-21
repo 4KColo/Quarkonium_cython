@@ -23,35 +23,52 @@ std::uniform_real_distribution<double> sample_cos(-1., 1.);
 // find maximum of a function
 // only works for positive-function with one local maximum within [xL, xH]
 double find_max_noparams(double(*f)(double x), double xL_, double xR_){
-    double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM;
-    dx = (xR-xL)/20.;
-    dfL = f(xL+dx) - f(xL);
-    dfR = f(xR) - f(xR-dx);
-    do{
-        xM = (xL+xR)/2.;
-        dfM = f(xM+dx) - f(xM);
-        fM = f(xM);
-        if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
-        if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
-        dx = (xR-xL)/20.;
-    }while ( std::abs(dfM/dx/fM) > accuracy );
-    return fM;
+    double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM, fL, fR;
+    dx = (xR-xL)/100.;
+    fL = f(xL);
+    fR = f(xR);
+    dfL = f(xL+dx) - fL;
+    dfR = fR - f(xR-dx);
+    if (dfL*dfR < 0.0){
+        do{
+            xM = (xL+xR)/2.;
+            dfM = f(xM+dx) - f(xM);
+            fM = f(xM);
+            if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
+            if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
+            dx = (xR-xL)/100.;
+        }while ( std::abs(dfM/dx/fM) > accuracy );
+        return fM;
+    }
+    else{
+        if (fL > fR) {return fL;}
+        else {return fR;}
+    }
 }
 
 double find_max(double(*f)(double x, void * params), void * params, double xL_, double xR_){
-    double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM;
-    dx = (xR-xL)/20.;
-    dfL = f(xL+dx, params) - f(xL, params);
-    dfR = f(xR, params) - f(xR-dx, params);
-    do{
-        xM = (xL+xR)/2.;
-        dfM = f(xM+dx, params) - f(xM, params);
-        fM = f(xM, params);
-        if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
-        if (dfM*dfR <= 0) {xL = xM; dfL = dfM;}
-        dx = (xR-xL)/20.;
-    }while ( std::abs(dfM/dx/fM) > accuracy );
-    return fM;
+// positive definite function, with at most one maximum
+    double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM, fL, fR;
+    dx = (xR-xL)/100.;
+    fL = f(xL, params);
+    fR = f(xR, params);
+    dfL = f(xL+dx, params) - fL;
+    dfR = fR - f(xR-dx, params);
+    if (dfL*dfR < 0.0){
+        do{
+            xM = (xL+xR)/2.;
+            dfM = f(xM+dx, params) - f(xM, params);
+            fM = f(xM, params);
+            if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
+            if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
+            dx = (xR-xL)/100.;
+        }while ( std::abs(dfM/dx/fM) > accuracy );
+        return fM;
+    }
+    else{
+        if (fL > fR) {return fL;}
+        else {return fR;}
+    }
 }
 // find the root of a monotonically increasing or decreasing function
 double find_root(double(*f)(double x, void * params), double result, void * params, double xL_, double xR_){

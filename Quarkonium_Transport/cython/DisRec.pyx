@@ -416,17 +416,21 @@ cdef class DisRec(object):
 			# generate the maximums for sampling
 			print ("generating reco sampling")
 			for iv, v in enumerate(varray):
-				gamma = np.sqrt(1.-v*v)
+				gamma = 1./np.sqrt(1.-v*v)
 				for iT, T in enumerate(Tarray):
 					params_reco[0] = gamma*(1.-v)/T
 					params_reco[1] = gamma*(1.+v)/T
 					uplim = 15.0*T/np.sqrt(1.-v)
 					for iPrel, Prel in enumerate(p_relarray):
 						params_reco[2] = Prel*Prel/M
-						self.T_S1S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco1S_important, params, 0.0, uplim)
-						self.T_S2S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco2S_important, params, 0.0, uplim)
-						self.T_S1S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco1S_important, params, 0.0, uplim)
-						self.T_S2S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco2S_important, params, 0.0, uplim)
+						print Prel
+						self.T_S1S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco1S_important, params_reco, small_number, uplim)
+						print 1
+						self.T_S2S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco2S_important, params_reco, small_number, uplim)
+						print 2
+						self.T_S1S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco1S_important, params_reco, small_number, uplim)
+						print 3
+						self.T_S2S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco2S_important, params_reco, small_number, uplim)
 										
 			## store the disso and reco rates in datasets
 			gp.create_dataset('R1S_decay_gluon', data=self.T_R1S_decay_gluon)
