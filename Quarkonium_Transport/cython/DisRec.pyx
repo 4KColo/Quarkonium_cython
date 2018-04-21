@@ -423,13 +423,9 @@ cdef class DisRec(object):
 					uplim = 15.0*T/np.sqrt(1.-v)
 					for iPrel, Prel in enumerate(p_relarray):
 						params_reco[2] = Prel*Prel/M
-						print Prel
 						self.T_S1S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco1S_important, params_reco, small_number, uplim)
-						print 1
 						self.T_S2S_reco_ineq_max[iv, iT, iPrel] = find_max(&f_p1_reco2S_important, params_reco, small_number, uplim)
-						print 2
 						self.T_S1S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco1S_important, params_reco, small_number, uplim)
-						print 3
 						self.T_S2S_reco_ineg_max[iv, iT, iPrel] = find_max(&f_q1_reco2S_important, params_reco, small_number, uplim)
 										
 			## store the disso and reco rates in datasets
