@@ -29,7 +29,7 @@ double find_max_noparams(double(*f)(double x), double xL_, double xR_){
     dfR = f(xR) - f(xR-dx);
     do{
         xM = (xL+xR)/2.;
-        dfM = f(xM+dx) - f(xM-dx);
+        dfM = f(xM+dx) - f(xM);
         fM = f(xM);
         if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
         if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
@@ -45,7 +45,7 @@ double find_max(double(*f)(double x, void * params), void * params, double xL_, 
     dfR = f(xR, params) - f(xR-dx, params);
     do{
         xM = (xL+xR)/2.;
-        dfM = f(xM+dx, params) - f(xM-dx, params);
+        dfM = f(xM+dx, params) - f(xM, params);
         fM = f(xM, params);
         if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
         if (dfM*dfR <= 0) {xL = xM; dfL = dfM;}

@@ -375,7 +375,7 @@ cdef class DisRec(object):
 			print ("generating decay sampling")
 			for iv, v in enumerate(varray):
 				params[0] = v
-				gamma = np.sqrt(1.-v*v)
+				gamma = 1./np.sqrt(1.-v*v)
 				for iT, T in enumerate(Tarray):
 					params[1] = T
 					params_decay[0] = gamma*(1.-v)/T
@@ -386,7 +386,7 @@ cdef class DisRec(object):
 					self.T_S1S_decay_ineq_max[iv, iT] = find_max(&f_p1_decay1S_important, params_decay, E1S, uplim)
 					self.T_S2S_decay_ineq_max[iv, iT] = find_max(&f_p1_decay2S_important, params_decay, E2S, uplim)
 					self.T_S1S_decay_ineg_max[iv, iT] = find_max(&f_q1_decay1S_important, params_decay, E1S, uplim)
-					self.T_S2S_decay_ineg_max[iv, iT] = find_max(&f_q1_decay2S_important, params_decay, E1S, uplim)
+					self.T_S2S_decay_ineg_max[iv, iT] = find_max(&f_q1_decay2S_important, params_decay, E2S, uplim)
 						
 			## Initialize recombination rate*vol table
 			# gluon-recombination

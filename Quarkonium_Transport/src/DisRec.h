@@ -30,14 +30,14 @@ const double dRdq1dq2_1S_decay_prefactor = alpha_s_sqd/6./pow(M_PI,4);
 const double dRdq1dq2_1S_reco_prefactor = alpha_s_sqd/24./M_PI/M_PI;
 // above line: gluon inelastic reco
 
-const double max_p2Matrix1S = 88.0; // used in rejection method, for pot_alpha_s = 0.3
+const double max_p2Matrix1S = 88.0; // used in rejection method, for pot_alpha_s = 0.3; 37.5 <-> 0.4
 
 // ------------------------- 2S: ---------------------------
 const double Matrix2S_prefactor = pow(2., 16) * pow(M_PI, 2) * pow(a_B, 5);
 
 const double Matrix2S_term = 2. * (2.*rho_c_sq + 5.*rho_c + 3.);
 
-const double max_p2Matrix2S = 4163.4; // used in rejection method, for pot_alpha_s = 0.3
+const double max_p2Matrix2S = 4163.4; // used in rejection method, for pot_alpha_s = 0.3; 1760.0 <-> 0.4
 
 
 
