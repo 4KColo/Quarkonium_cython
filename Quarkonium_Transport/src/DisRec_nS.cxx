@@ -29,13 +29,13 @@ double find_max_noparams(double(*f)(double x), double xL_, double xR_){
     fR = f(xR);
     dfL = f(xL+dx) - fL;
     dfR = fR - f(xR-dx);
-    if (dfL*dfR < 0.0){
+    if (dfL*dfR <= 0.0){
         do{
             xM = (xL+xR)/2.;
             dfM = f(xM+dx) - f(xM);
             fM = f(xM);
-            if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
-            if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
+            if (dfL*dfM < 0 or dfM*dfR > 0) {xR = xM; dfR = dfM;}
+            else {xL = xM; dfL = dfM;}
             dx = (xR-xL)/100.;
         }while ( std::abs(dfM/dx/fM) > accuracy );
         return fM;
@@ -54,13 +54,13 @@ double find_max(double(*f)(double x, void * params), void * params, double xL_, 
     fR = f(xR, params);
     dfL = f(xL+dx, params) - fL;
     dfR = fR - f(xR-dx, params);
-    if (dfL*dfR < 0.0){
+    if (dfL*dfR <= 0.0){
         do{
             xM = (xL+xR)/2.;
             dfM = f(xM+dx, params) - f(xM, params);
             fM = f(xM, params);
-            if (dfL*dfM < 0) {xR = xM; dfR = dfM;}
-            if (dfM*dfR < 0) {xL = xM; dfL = dfM;}
+            if (dfL*dfM < 0 or dfM*dfR > 0) {xR = xM; dfR = dfM;}
+            else {xL = xM; dfL = dfM;}
             dx = (xR-xL)/100.;
         }while ( std::abs(dfM/dx/fM) > accuracy );
         return fM;
