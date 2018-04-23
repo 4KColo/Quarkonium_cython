@@ -103,14 +103,14 @@ cdef class HqEvo(object):
 			self.x_Qq_Qqg = new Xsection_2to3(&M2_Qq2Qqg, self.mass, "%s/XQq2Qqg.hdf5"%table_folder, refresh_table)
 			self.x_Qg_Qgg = new Xsection_2to3(&M2_Qg2Qgg, self.mass, "%s/XQg2Qgg.hdf5"%table_folder, refresh_table)
 			self.r_Qq_Qqg = new rates_2to3(self.x_Qq_Qqg, 12*self.Nf, 0., "%s/RQq2Qqg.hdf5"%table_folder, refresh_table)
-			self.r_Qg_Qgg = new rates_2to3(self.x_Qg_Qgg, 16/2, 0., "%s/RQg2Qgg.hdf5"%table_folder, refresh_table)
+			self.r_Qg_Qgg = new rates_2to3(self.x_Qg_Qgg, 16, 0., "%s/RQg2Qgg.hdf5"%table_folder, refresh_table)
 			self.Nchannels += 2
 
 		if self.detailed_balance:
 			self.x_Qqg_Qq = new f_3to2(&Ker_Qqg2Qq, self.mass, "%s/XQqg2Qq.hdf5"%table_folder, refresh_table)
 			self.x_Qgg_Qg = new f_3to2(&Ker_Qgg2Qg, self.mass, "%s/XQgg2Qg.hdf5"%table_folder, refresh_table)
 			self.r_Qqg_Qq = new rates_3to2(self.x_Qqg_Qq, 12*self.Nf*16, 0., 0., "%s/RQqg2Qq.hdf5"%table_folder, refresh_table)
-			self.r_Qgg_Qg = new rates_3to2(self.x_Qgg_Qg, 16*16/2, 0., 0., "%s/RQgg2Qg.hdf5"%table_folder, refresh_table)
+			self.r_Qgg_Qg = new rates_3to2(self.x_Qgg_Qg, 16*16, 0., 0., "%s/RQgg2Qg.hdf5"%table_folder, refresh_table)
 			self.Nchannels += 2
 			
 		print "# Number of Channels", self.Nchannels
