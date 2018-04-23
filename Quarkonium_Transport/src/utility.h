@@ -14,5 +14,4 @@ const double M2S = 2.*M - E2S;
 const double InverseFermiToGeV = 0.197327;
 const double li2_minus1 = -0.822467;
 const double accuracy = 0.0001;
-
 #endif

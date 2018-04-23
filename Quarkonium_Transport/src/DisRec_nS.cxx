@@ -24,6 +24,7 @@ std::uniform_real_distribution<double> sample_cos(-1., 1.);
 // only works for positive-function with one local maximum within [xL, xH]
 double find_max_noparams(double(*f)(double x), double xL_, double xR_){
     double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM, fL, fR;
+    int count = 1;
     dx = (xR-xL)/100.;
     fL = f(xL);
     fR = f(xR);
@@ -31,13 +32,14 @@ double find_max_noparams(double(*f)(double x), double xL_, double xR_){
     dfR = fR - f(xR-dx);
     if (dfL*dfR <= 0.0){
         do{
+            count += 1;
             xM = (xL+xR)/2.;
             dfM = f(xM+dx) - f(xM);
             fM = f(xM);
             if (dfL*dfM < 0 or dfM*dfR > 0) {xR = xM; dfR = dfM;}
             else {xL = xM; dfL = dfM;}
             dx = (xR-xL)/100.;
-        }while ( std::abs(dfM/dx/fM) > accuracy );
+        }while ( std::abs(dfM/dx) > accuracy and count < 10);
         return fM;
     }
     else{
@@ -49,6 +51,7 @@ double find_max_noparams(double(*f)(double x), double xL_, double xR_){
 double find_max(double(*f)(double x, void * params), void * params, double xL_, double xR_){
 // positive definite function, with at most one maximum
     double dfL, dfR, dfM, xM, xL = xL_, xR = xR_, dx, fM, fL, fR;
+    int count = 1;
     dx = (xR-xL)/100.;
     fL = f(xL, params);
     fR = f(xR, params);
@@ -56,13 +59,14 @@ double find_max(double(*f)(double x, void * params), void * params, double xL_, 
     dfR = fR - f(xR-dx, params);
     if (dfL*dfR <= 0.0){
         do{
+            count += 1;
             xM = (xL+xR)/2.;
             dfM = f(xM+dx, params) - f(xM, params);
             fM = f(xM, params);
             if (dfL*dfM < 0 or dfM*dfR > 0) {xR = xM; dfR = dfM;}
             else {xL = xM; dfL = dfM;}
             dx = (xR-xL)/100.;
-        }while ( std::abs(dfM/dx/fM) > accuracy );
+        }while ( std::abs(dfM/dx) > accuracy and count < 10 );
         return fM;
     }
     else{
@@ -118,6 +122,8 @@ double pMatrix1S(double p){
 double p2Matrix1S(double p){
     return p*p*Matrix1S(p);
 }
+
+const double max_p2Matrix1S = find_max_noparams(&p2Matrix1S, small_number, p_1Scrit);
 
 //---------------------- gluo-dissociation -----------------------
 // Two formula (with the same reuslts) of the Cross-section of 1S -> Psi(p)
@@ -281,7 +287,7 @@ double R1S_decay_ineq(double v, double T){
     double result, error;
     double p1up = 15.*T/std::sqrt(1.-v);
     double xl[5] = { E1S, -1., 0., -1., 0. };
-    double xu[5] = { p1up, 1., 3.0, 1., TwoPi };
+    double xu[5] = { p1up, 1., p_1Scrit, 1., TwoPi };
     gsl_monte_function F;
     F.f = &dRdp1dp2_1S_decay_ineq;
     F.dim = 5;
@@ -377,7 +383,7 @@ std::vector<double> S1S_decay_ineq(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
         p1_try = S1S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);  // give the maximum as result_max to S1S_decay_ineq_p1_important
@@ -432,7 +438,7 @@ std::vector<double> S1S_decay_ineq_test(double v, double T, double maximum){
 
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
 
         p1_try = S1S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
@@ -505,7 +511,7 @@ double R1S_decay_ineg(double v, double T){
     double result, error;
     double q1up = 15.*T/std::sqrt(1.-v);
     double xl[5] = { E1S, -1., 0., -1., 0. };
-    double xu[5] = { q1up, 1., 3.0, 1., TwoPi };
+    double xu[5] = { q1up, 1., p_1Scrit, 1., TwoPi };
     gsl_monte_function F;
     F.f = &dRdq1dq2_1S_decay_ineg;
     F.dim = 5;
@@ -574,7 +580,7 @@ std::vector<double> S1S_decay_ineg(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
         q1_try = S1S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
@@ -628,7 +634,7 @@ std::vector<double> S1S_decay_ineg_test(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix1S > p2Matrix1S(p_rel));
         
         q1_try = S1S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
@@ -1057,6 +1063,8 @@ double p2Matrix2S(double p){
     return p*p*Matrix2S(p);
 }
 
+const double max_p2Matrix2S = find_max_noparams(&p2Matrix2S, small_number, p_2Scrit - small_number);
+
 //---------------------- gluo-dissociation -----------------------
 // Cross-section of 2S -> Psi(p)
 double Xsec2S(double q){
@@ -1210,7 +1218,7 @@ double R2S_decay_ineq(double v, double T){
     double result, error;
     double p1up = 15.*T/std::sqrt(1.-v);
     double xl[5] = { E2S, -1., 0., -1., 0. };
-    double xu[5] = { p1up, 1., 3.0, 1., TwoPi };
+    double xu[5] = { p1up, 1., p_1Scrit, 1., TwoPi };
     gsl_monte_function F;
     F.f = &dRdp1dp2_2S_decay_ineq;
     F.dim = 5;
@@ -1288,7 +1296,7 @@ std::vector<double> S2S_decay_ineq(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
         p1_try = S2S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
@@ -1342,7 +1350,7 @@ std::vector<double> S2S_decay_ineq_test(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
         p1_try = S2S_decay_ineq_p1_important(p1low, p1up, maximum, params_p1);
@@ -1414,7 +1422,7 @@ double R2S_decay_ineg(double v, double T){
     double result, error;
     double q1up = 15.*T/std::sqrt(1.-v);
     double xl[5] = { E2S, -1., 0., -1., 0. };
-    double xu[5] = { q1up, 1., 3.0, 1., TwoPi };
+    double xu[5] = { q1up, 1., p_1Scrit, 1., TwoPi };
     gsl_monte_function F;
     F.f = &dRdq1dq2_2S_decay_ineg;
     F.dim = 5;
@@ -1483,7 +1491,7 @@ std::vector<double> S2S_decay_ineg(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
         q1_try = S2S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
@@ -1537,7 +1545,7 @@ std::vector<double> S2S_decay_ineg_test(double v, double T, double maximum){
     
     do{
         do{
-            p_rel = sample_inel(gen)*3.0;
+            p_rel = sample_inel(gen)*p_1Scrit;
         } while(rejection(gen)*max_p2Matrix2S > p2Matrix2S(p_rel));
         
         q1_try = S2S_decay_ineg_q1_important(q1low, q1up, maximum, params_q1);
