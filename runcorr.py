@@ -24,11 +24,11 @@ N1S_t = []			# time sequence of No. of 1S state
 N2S_t = []
 
 # define the event generator
-event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True)
+event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = 'corr')
 
 for i in range(N_ave):
 	# initialize N_ave number of events
-	event_gen.initialize(sample_method = 'corr')
+	event_gen.initialize()
 	N1S_t.append([])
 	N2S_t.append([])
 	

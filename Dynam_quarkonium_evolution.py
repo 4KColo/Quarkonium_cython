@@ -21,7 +21,7 @@ T_2S = 0.3					  # melting temperature of Upsilon_2S
 
 class QQbar_evol:
 ####---- input the medium_type when calling the class ----####
-	def __init__(self, medium_type = 'dynamical', centrality_str_given = '0-10', energy_GeV = 2760, recombine = True, HQ_scat = False):
+	def __init__(self, medium_type = 'dynamical', centrality_str_given = '0-10', energy_GeV = 2760, recombine = True, HQ_scat = False, sample_method = '1S'):
 		self.type = medium_type
 		self.recombine = recombine
 		self.HQ_scat = HQ_scat
@@ -34,20 +34,21 @@ class QQbar_evol:
 		## -------------- create HQ-diff rates reader -------- ##
 		if self.HQ_scat == True:
 			self.HQ_event = HQ_diff(Mass = M)
+		## -------------- create init p,x sampler ------------ ##
+		self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
 
 ####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
 ####---- tau0 = 0.6 fm/c is the hydro starting time; before that, free stream
-	def initialize(self, tau0 = 0.6, sample_method = 'corr'):
+	def initialize(self, tau0 = 0.6):
 		if self.type == 'dynamical':
 			## ----- create dictionaries to store momenta, positions, id ----- ##
 			self.Qlist = {'4-momentum': [], '3-position': [], 'id': 5, 'last_t23': [], 'last_t32': [],  'last_scatter_dt':[]}
 			self.Qbarlist = {'4-momentum': [], '3-position': [], 'id': -5, 'last_t23': [], 'last_t32': [],  'last_scatter_dt':[]}
 			self.U1Slist = {'4-momentum': [], '3-position': [], 'id': 533, 'last_form_time': []}
 			self.U2Slist = {'4-momentum': [], '3-position': [], 'id': 100533, 'last_form_time': []}
-			
-			## -------------- create init p,x sampler ------------ ##
-			self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
+
 			## --------- sample initial momenta and positions -------- ##
+			self.init.sample()
 			self.Qlist['4-momentum'] = self.init.Qinit_p()
 			self.Qlist['3-position'] = self.init.Qinit_x()
 			self.Qbarlist['4-momentum'] = self.init.Qbarinit_p()
@@ -117,6 +118,7 @@ class QQbar_evol:
 		### ----------- free stream these particles ------------###
 		for i in range(len_Q):
 			v3_Q = self.Qlist['4-momentum'][i][1:]/self.Qlist['4-momentum'][i][0]
+			#print v3_Q
 			self.Qlist['3-position'][i] = self.Qlist['3-position'][i] + dt * v3_Q
 		for i in range(len_Qbar):
 			v3_Qbar = self.Qbarlist['4-momentum'][i][1:]/self.Qbarlist['4-momentum'][i][0]
@@ -135,7 +137,7 @@ class QQbar_evol:
 		### ------------- heavy quark diffusion --------------- ###
 		if self.HQ_scat == True:
 			for i in range(len_Q):
-				#print self.t, self.Qlist['3-position'][i]
+				#print self.t, self.Qlist['4-momentum'][i], self.Qlist['3-position'][i]
 				T_Vxyz = self.hydro.cell_info(self.t, self.Qlist['3-position'][i])
 				if T_Vxyz[0] >= Tc:
 					timer = 0.0
@@ -156,6 +158,7 @@ class QQbar_evol:
 					self.Qlist['4-momentum'][i] = p_Q
 					
 			for i in range(len_Qbar):
+				#print self.Qbarlist['4-momentum'][i], self.Qbarlist['3-position'][i]
 				T_Vxyz = self.hydro.cell_info(self.t, self.Qbarlist['3-position'][i])
 				if T_Vxyz[0] >= Tc:
 					timer = 0.0

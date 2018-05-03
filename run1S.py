@@ -9,7 +9,7 @@ import h5py
 centrality = '0-10'
 energy = 2760
 
-N_ave = 2		# No. of parallel runnings
+N_ave = 20		# No. of parallel runnings
 N_step = 1268		# total step required is t_total / dt, t_total = 11.4/(2/cosh(y_max)), 11.4 fm/c is the lifetime of QGP in 0-10% 2.76 GeV
 dt_run = 0.05
 tmax = N_step*dt_run
@@ -23,11 +23,12 @@ N1S_t = []			# time sequence of No. of 1S state
 N2S_t = []			# time sequence of No. of 2S state
 
 # define the event generator
-event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True)
+event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = 'corr')
 
 for i in range(N_ave):
+	#print i
 	# initialize N_ave number of events
-	event_gen.initialize(sample_method = '1S')
+	event_gen.initialize()
 	N1S_t.append([])
 	N2S_t.append([])
 	

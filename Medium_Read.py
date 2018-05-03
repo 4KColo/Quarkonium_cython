@@ -57,6 +57,7 @@ class hydro_reader:
 		x = position_vector[0]
 		y = position_vector[1]
 		z = position_vector[2]
+		#print time, z
 		vz = z/time
 		gamma_inverse = np.sqrt(1.0 - vz**2)
 		tau = time * gamma_inverse
