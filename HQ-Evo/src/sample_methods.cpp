@@ -67,7 +67,7 @@ double rejection_1d::plain_sample(double (*f_) (double * x, size_t n_dims, void 
 
 // ----------Affine-invariant metropolis sample-------------------
 AiMS::AiMS(void)
-:	a(0.5), rd(), gen(rd()), sqrtZ(std::sqrt(1./a), std::sqrt(a)),
+:	a(0.5), rd(), gen(rd()), sqrtZ(std::sqrt(a), std::sqrt(1./a)),
 	reject(0.0, 1.0)
 {
 }
