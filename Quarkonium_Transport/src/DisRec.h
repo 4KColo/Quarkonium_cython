@@ -5,6 +5,10 @@
 #include <cmath>
 #include <vector>
 
+double find_max(double(*f)(double x, void * params), void * params, double xL, double xR);
+double find_root(double(*f)(double x, void * params), double result, void * params, double xL_, double xR_);
+
+// some constants
 const double rho_c_sq = pow(rho_c, 2);
 const double small_number = 1e-4;
 const double TwoPi = 2.*M_PI;
@@ -12,7 +16,7 @@ const double alpha_s_sqd = fix_alpha_s*fix_alpha_s;
 // ------------------------- 1S: ---------------------------
 const double Matrix1S_prefactor = pow(2., 9) * pow(M_PI, 2) * pow(a_B, 5) * pow(2.+rho_c, 2);
 
-const double Matrix1S_scale = pot_alpha_s*M/(4.*Nc);
+const double eta_scale = pot_alpha_s*M/(4.*Nc);
 
 const double Xsec1S_prefactor = fix_alpha_s*CF/3.0 * pow(2.0,10)
 							* pow(M_PI, 2) * rho_c*pow(2.0+rho_c, 2)
@@ -32,7 +36,7 @@ const double dRdq1dq2_1S_reco_prefactor = alpha_s_sqd/24./M_PI/M_PI;
 // above line: gluon inelastic reco
 
 //const double max_p2Matrix1S = 88.0; // used in rejection method, for pot_alpha_s = 0.3; 37.5 <-> 0.4
-const double p_1Ssam = 3.5/a_B;    // used to find max(p2Matrix1S), sample p2Matrix1S
+const double p_1Ssam = 3.6/a_B;    // used to find max(p2Matrix1S), sample p2Matrix1S
 
 // ------------------------- 2S: ---------------------------
 const double Matrix2S_prefactor = pow(2., 16) * pow(M_PI, 2) * pow(a_B, 5);
@@ -42,11 +46,15 @@ const double Matrix2S_term = 2. * (2.*rho_c_sq + 5.*rho_c + 3.);
 //const double max_p2Matrix2S = 4163.4; // used in rejection method, for pot_alpha_s = 0.3; 1760.0 <-> 0.4
 const double q_2Scrit = E2S*Matrix2S_term/(2.0+rho_c);
 const double p_2Scrit = std::sqrt( M*(q_2Scrit - E2S) );    // used to find max(p2Matrix2S)
-const double p_2Ssam = 1.5/a_B;    // used to find sample p2Matrix2S
+const double p_2Ssam = 1.6/a_B;    // used to sample p2Matrix2S
 
-double find_max(double(*f)(double x, void * params), void * params, double xL, double xR);
-double find_root(double(*f)(double x, void * params), double result, void * params, double xL_, double xR_);
+// ------------------------- 1P: ---------------------------
+const double Matrix1P_prefactor = pow(2., 16) * pow(M_PI, 2) * pow(a_B, 5)/3.;
+//const double max_p2Matrix1P
+const double p_1Psam = 1.6/a_B;    // used to find max(p2Matrix1P), sample p2Matrix1P
 
+
+// functions
 // --------------------- 1S -----------------------
 // matrix elements
 double Matrix1S(double p);
@@ -160,10 +168,65 @@ std::vector<double> S2S_reco_ineg(double v, double T, double p, double maximum);
 std::vector<double> S2S_reco_ineg_test(double v, double T, double p, double maximum);
 
 
+// --------------------- 1P -----------------------
+// matrix elements
+double Matrix1P(double p);
+double pMatrix1P(double p);
+double p2Matrix1P(double p);
+double Xsec1P(double q);
+// real gluon dissociation
+double dRdq_1P_gluon(double q, void * params_);
+double dRdq_1P_gluon_small_v(double q, void * params_);
+double qdRdq_1P_gluon_u(double u, void * params_);
+double R1P_decay_gluon(double vabs, double T);
+double S1P_decay_gluon_q(double v, double T, double maximum);
+double S1P_decay_gluon_costheta(double q, double v, double T);
+double S1P_decay_gluon_final_p(double q);
+std::vector<double> S1P_decay_gluon(double v, double T, double maximum);
+// inelastic quark dossociation
+double dRdp1dp2_1P_decay_ineq(double x[5], size_t dim, void * params_);
+double R1P_decay_ineq(double v, double T);
+double f_p1_decay1P_important(double p1, void * params_);
+double S1P_decay_ineq_p1(double p1low, double p1up, void * params_);
+double S1P_decay_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
+double S1P_decay_ineq_cos1(double p1, void * params_);
+std::vector<double> S1P_decay_ineq(double v, double T, double maximum);
+std::vector<double> S1P_decay_ineq_test(double v, double T, double maximum);
+// inelastic gluon dissociation
+double dRdq1dq2_1P_decay_ineg(double x[5], size_t dim, void * params_);
+double R1P_decay_ineg(double v, double T);
+double f_q1_decay1P_important(double q1, void * params_);
+double S1P_decay_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
+double S1P_decay_ineg_cos1(double q1, void * params_);
+std::vector<double> S1P_decay_ineg(double v, double T, double maximum);
+std::vector<double> S1P_decay_ineg_test(double v, double T, double maximum);
+
+// real gluon recombination
+double RV1P_reco_gluon(double v, double T, double p);
+double dist_position_1P(double r);
+double S1P_reco_gluon_q(double p);
+double S1P_reco_gluon_costheta(double v, double T, double q);
+std::vector<double> S1P_reco_gluon(double v, double T, double p);
+// inelastic quark recombination
+double dRdp1dp2_1P_reco_ineq(double x[4], size_t dim, void * params_);
+double RV1P_reco_ineq(double v, double T, double p);
+double f_p1_reco1P_important(double p1, void * params_);
+double S1P_reco_ineq_p1_important(double p1low, double p1up, double result_max, void * params_);
+std::vector<double> S1P_reco_ineq(double v, double T, double p, double maximum);
+std::vector<double> S1P_reco_ineq_test(double v, double T, double p, double maximum);
+// inelastic gluon dissociation
+double dRdq1dq2_1P_reco_ineg(double x[4], size_t dim, void * params_);
+double RV1P_reco_ineg(double v, double T, double p);
+double f_q1_reco1P_important(double q1, void * params_);
+double S1P_reco_ineg_q1_important(double q1low, double q1up, double result_max, void * params_);
+std::vector<double> S1P_reco_ineg(double v, double T, double p, double maximum);
+std::vector<double> S1P_reco_ineg_test(double v, double T, double p, double maximum);
+
 // change polar coordinates to cartisian coordinates
 std::vector<double> p3top4_Q(std::vector<double> p3);
 std::vector<double> p3top4_quarkonia_1S(std::vector<double> p3);
 std::vector<double> p3top4_quarkonia_2S(std::vector<double> p3);
+std::vector<double> p3top4_quarkonia_1P(std::vector<double> p3);
 
 // define these functions in .h file so that cython can call; for what these functions really do, the compiler will refer to cpp(cxx) file
 #endif
