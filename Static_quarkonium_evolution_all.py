@@ -497,7 +497,7 @@ class QQbar_evol:
 						# r_rel = np.sqrt(np.sum(x_rel**2))
 						
 						# relative position in QQbar rest frame
-						x4_rel_lab = np.array(0.0, x_rel[0], x_rel[1], x_rel[2])
+						x4_rel_lab = np.array([0.0, x_rel[0], x_rel[1], x_rel[2]])
 						x4_rel_rest = LorRot.lorentz(x4_rel_lab, v_CM)
 						r_rel = np.sqrt(np.sum(x4_rel_rest[1:]**2))
 						
