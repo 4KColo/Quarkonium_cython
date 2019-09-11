@@ -417,10 +417,10 @@ cdef class DisRec(object):
 			if gpname in f:
 				del f[gpname]
 			gp = f.create_group(gpname)
-			self.vmin = 0.001; self.vmax = 0.999; self.N_v = 100
-			self.Tmin = 0.15; self.Tmax = 0.55; self.N_T = 50
+			self.vmin = 0.001; self.vmax = 0.999; self.N_v = 60
+			self.Tmin = 0.15; self.Tmax = 0.55; self.N_T = 30
 			# here we use p_rel in GeV, the 4.0 and 8.6 are for MeV; ln(1000)=6.9
-			self.p_rel_log_min = 4.0-6.9; self.p_rel_log_max = 8.6-6.9; self.N_p_rel = 80
+			self.p_rel_log_min = 4.0-6.9; self.p_rel_log_max = 8.6-6.9; self.N_p_rel = 60
 
 			## Initialize dissociation rate table
 			# gluon-dissociation

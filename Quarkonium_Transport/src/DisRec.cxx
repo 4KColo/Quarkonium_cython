@@ -294,8 +294,8 @@ double R1S_decay_ineq(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdp1dp2_1S_decay_prefactor * gamma_inv;
@@ -518,8 +518,8 @@ double R1S_decay_ineg(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdq1dq2_1S_decay_prefactor * gamma_inv;
@@ -770,8 +770,8 @@ double RV1S_reco_ineq(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdp1dp2_1S_reco_prefactor * Matrix1S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
@@ -923,8 +923,8 @@ double RV1S_reco_ineg(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdq1dq2_1S_reco_prefactor * Matrix1S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
@@ -1227,8 +1227,8 @@ double R2S_decay_ineq(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdp1dp2_1S_decay_prefactor * gamma_inv;
@@ -1431,8 +1431,8 @@ double R2S_decay_ineg(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdq1dq2_1S_decay_prefactor * gamma_inv;
@@ -1680,8 +1680,8 @@ double RV2S_reco_ineq(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdp1dp2_1S_reco_prefactor * Matrix2S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
@@ -1833,8 +1833,8 @@ double RV2S_reco_ineg(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdq1dq2_1S_reco_prefactor * Matrix2S(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
@@ -2137,8 +2137,8 @@ double R1P_decay_ineq(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdp1dp2_1S_decay_prefactor * gamma_inv;
@@ -2341,8 +2341,8 @@ double R1P_decay_ineg(double v, double T){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (5); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 100000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 5, 500000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 100000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 500000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return result * dRdq1dq2_1S_decay_prefactor * gamma_inv;
@@ -2590,8 +2590,8 @@ double RV1P_reco_ineq(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdp1dp2_1S_reco_prefactor * Matrix1P(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
@@ -2743,8 +2743,8 @@ double RV1P_reco_ineg(double v, double T, double p){
     F.params = params;
     gsl_rng * r = gsl_rng_alloc (gsl_rng_default);
     gsl_monte_vegas_state *w = gsl_monte_vegas_alloc (4); // create VEGAS workstation
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 10000, r, w, &result, &error); //warm-up
-    gsl_monte_vegas_integrate (&F, xl, xu, 4, 50000, r, w, &result, &error); //calculate
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 10000, r, w, &result, &error); //warm-up
+    gsl_monte_vegas_integrate (&F, xl, xu, 2, 50000, r, w, &result, &error); //calculate
     delete [] params;
     gsl_monte_vegas_free(w);
     return gamma_inv * result * dRdq1dq2_1S_reco_prefactor * Matrix1P(p) * pow(InverseFermiToGeV,3); // no gamma here, convert to GeV fm^3
