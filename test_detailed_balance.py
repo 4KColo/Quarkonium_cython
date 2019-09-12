@@ -8,7 +8,7 @@ import h5py
 #### ------------ multiple runs averaged and compare ---------------- ####
 N_ave = 1		# #of parallel runnings
 T = 0.3		
-N_step = 250
+N_step = 1250
 dt = 0.04
 tmax = N_step*dt
 t = np.linspace(0.0, tmax, N_step+1)
@@ -20,28 +20,44 @@ N1s_t = []			# to store number of U1s in each time step
 N2s_t = []			# to store number of U2s in each time step
 N1p_t = []			# to store number of U1p in each time step
 Nb_t = []			# to store number of Q or Qbar in each time step
+momentum1s_t = []
+momentum2s_t = []
+momentum1p_t = []
 P_sample = 5.0		# GeV, initial uniform sampling
 Process_chosen = 'all'
 Species = '1S'
 
 # define the event generator
-event_gen = QQbar_evol('static', temp_init = T, HQ_scat = False, process = Process_chosen, quarkonium_species = Species)
+event_gen = QQbar_evol('static', temp_init = T, HQ_scat = True, process = Process_chosen, quarkonium_species = Species)
 
 for i in range(N_ave):
 	# initialize N_ave number of events
-	event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, Lmax = 10.0, thermal_dist = True )
-	#event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, uniform_dist = True, Pmax = P_sample)
+	#event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, Lmax = 10.0, thermal_dist = True )
+	event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, uniform_dist = True, Pmax = P_sample)
 	N1s_t.append([])
 	N2s_t.append([])
 	N1p_t.append([])
+	momentum1s_t.append([])
+	momentum2s_t.append([])
+	momentum1p_t.append([])
 	for j in range(N_step+1):
+		if j >= N_step - 250:
+			if Species == '1S':
+				momentum1s_t[i].append(event_gen.U1Slist['4-momentum'])
+			elif Species == '2S':
+				momentum2s_t[i].append(event_gen.U2Slist['4-momentum'])
+			elif Species == '1P':
+				momentum1p_t[i].append(event_gen.U1Plist['4-momentum'])
 		N1s_t[i].append(len(event_gen.U1Slist['4-momentum']))	# store N_1S(t) for each event
 		N2s_t[i].append(len(event_gen.U2Slist['4-momentum']))	# store N_2S(t) for each event
 		N1p_t[i].append(len(event_gen.U1Plist['4-momentum']))	# store N_1P(t) for each event
 		event_gen.run()
 	event_gen.dict_clear()	## clear data from last simulation
 
-	
+
+momentum1s_t = np.array(momentum1s_t)
+momentum2s_t = np.array(momentum2s_t)
+momentum1p_t = np.array(momentum1p_t)
 N1s_t = np.array(N1s_t)
 N2s_t = np.array(N2s_t)
 N1p_t = np.array(N1p_t)
@@ -69,6 +85,9 @@ file1 = h5py.File('ThermalnoHQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_s
 file1.create_dataset('1S_percentage', data = R1s_t)
 file1.create_dataset('2S_percentage', data = R2s_t)
 file1.create_dataset('1P_percentage', data = R1p_t)
+file1.create_dataset('1S_momentum', data = momentum1s_t)
+file1.create_dataset('2S_momentum', data = momentum2s_t)
+file1.create_dataset('1P_momentum', data = momentum1p_t)
 file1.create_dataset('time', data = t)
 file1.close()
 
