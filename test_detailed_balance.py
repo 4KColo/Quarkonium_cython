@@ -44,11 +44,11 @@ for i in range(N_ave):
 		N1p_t[i].append(len(event_gen.U1Plist['4-momentum']))	# store N_1P(t) for each event
 
 		if j > N_momentum and j%10 == 0:
-			for k in range(N1s_t[i]):
+			for k in range(N1s_t[i][j]):
 				momentum1s_t.append(event_gen.U1Slist['4-momentum'][k])
-			for k in range(N2s_t[i]):
+			for k in range(N2s_t[i][j]):
 				momentum2s_t.append(event_gen.U2Slist['4-momentum'][k])
-			for k in range(N1p_t[i]):
+			for k in range(N1p_t[i][j]):
 				momentum1p_t.append(event_gen.U1Plist['4-momentum'][k])
 		
 		event_gen.run()
