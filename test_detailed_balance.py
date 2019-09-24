@@ -6,9 +6,10 @@ import h5py
 
 
 #### ------------ multiple runs averaged and compare ---------------- ####
-N_ave = 1		# #of parallel runnings
+N_ave = 1			# number of events
 T = 0.3		
 N_step = 1250
+N_momentum = 1250	# after this number of steps, store quarkonium momentum
 dt = 0.04
 tmax = N_step*dt
 t = np.linspace(0.0, tmax, N_step+1)
@@ -37,27 +38,32 @@ for i in range(N_ave):
 	N1s_t.append([])
 	N2s_t.append([])
 	N1p_t.append([])
-	momentum1s_t.append([])
-	momentum2s_t.append([])
-	momentum1p_t.append([])
 	for j in range(N_step+1):
-		if j >= N_step - 250:
-			if Species == '1S':
-				momentum1s_t[i].append(event_gen.U1Slist['4-momentum'])
-			elif Species == '2S':
-				momentum2s_t[i].append(event_gen.U2Slist['4-momentum'])
-			elif Species == '1P':
-				momentum1p_t[i].append(event_gen.U1Plist['4-momentum'])
 		N1s_t[i].append(len(event_gen.U1Slist['4-momentum']))	# store N_1S(t) for each event
 		N2s_t[i].append(len(event_gen.U2Slist['4-momentum']))	# store N_2S(t) for each event
 		N1p_t[i].append(len(event_gen.U1Plist['4-momentum']))	# store N_1P(t) for each event
+
+		if j > N_momentum and j%10 == 0:
+			for k in range(N1s_t[i]):
+				momentum1s_t.append(event_gen.U1Slist['4-momentum'][k])
+			for k in range(N2s_t[i]):
+				momentum2s_t.append(event_gen.U2Slist['4-momentum'][k])
+			for k in range(N1p_t[i]):
+				momentum1p_t.append(event_gen.U1Plist['4-momentum'][k])
+		
 		event_gen.run()
 	event_gen.dict_clear()	## clear data from last simulation
 
 
 momentum1s_t = np.array(momentum1s_t)
+print momentum1s_t
 momentum2s_t = np.array(momentum2s_t)
 momentum1p_t = np.array(momentum1p_t)
+momentum1s_t.flatten()
+momentum2s_t.flatten()
+momentum1p_t.flatten()
+print momentum1s_t
+
 N1s_t = np.array(N1s_t)
 N2s_t = np.array(N2s_t)
 N1p_t = np.array(N1p_t)
@@ -72,16 +78,12 @@ R2s_t = N2s_t_ave/(Nb0+N1s0+N2s0+N1p0)	# ratio of number of Q in the U2S
 R1p_t = N1p_t_ave/(Nb0+N1s0+N2s0+N1p0)	# ratio of number of Q in the U1P
 Rb_t = 1.0 - R1s_t - R2s_t - R1p_t		# ratio of number of open Q
 #### ------------ end of multiple runs averaged and compare ---------- ####
-'''
-plt.figure()
-plt.plot(t, R1s_t)
-plt.show()
 
-'''
+
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('ThermalnoHQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+'N2s0='+str(N2s0)+'N1p0='+str(N1p0)+'Species='+str(Species)+str(Process_chosen)+'.hdf5', 'w')
-#file1 = h5py.File('UniformPmax='+str(P_sample)+'HQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+'N2s0='+str(N2s0)+'N1p0='+str(N1p0)+'Species='+str(Species)+str(Process_chosen)+'.hdf5', 'w')
+#file1 = h5py.File('ThermalnoHQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+'N2s0='+str(N2s0)+'N1p0='+str(N1p0)+'Species='+str(Species)+str(Process_chosen)+'.hdf5', 'w')
+file1 = h5py.File('UniformPmax='+str(P_sample)+'HQT='+str(T)+'N_event='+str(N_ave)+'N_step='+str(N_step)+'Nb0='+str(Nb0)+'N1s0='+str(N1s0)+'N2s0='+str(N2s0)+'N1p0='+str(N1p0)+'Species='+str(Species)+str(Process_chosen)+'.hdf5', 'w')
 file1.create_dataset('1S_percentage', data = R1s_t)
 file1.create_dataset('2S_percentage', data = R2s_t)
 file1.create_dataset('1P_percentage', data = R1p_t)
