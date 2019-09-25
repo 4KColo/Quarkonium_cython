@@ -11,7 +11,7 @@ import LorRot
 
 
 #### ---------------------- some constants -----------------------------
-alpha_s = 0.3 				  # for bottomonium
+alpha_s = 0.4 				  # for bottomonium, choose the same value as alpha_s_pot in the cython library
 N_C = 3.0
 T_F = 0.5
 M = 4.65 					  # GeV b-quark
@@ -335,6 +335,7 @@ class QQbar_evol:
 				#total_prob_reco_ineg = np.sum(prob_reco_ineg)
 				prob_reco_all = prob_reco_gluon + prob_reco_ineq + prob_reco_ineg
 				total_prob_reco_all = np.sum(prob_reco_all)
+				#print total_prob_reco_all/dt*C1
 				rej_mc = np.random.rand(1)
 				
 				if rej_mc <= total_prob_reco_all:
@@ -471,26 +472,25 @@ class QQbar_evol:
 				xQbar = Qbar_x_list[pair_list[i][j]]
 				x_rel = xQ - xQbar
 				i_Qbar_mod = pair_list[i][j]%len_Qbar	# use for momentum and delete_index
-				rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
+				#rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
 					
-				if  rdotp < 0.0:
-					r_rel = np.sqrt(np.sum(x_rel**2))
-					x_CM = 0.5*( xQ + xQbar )
+				#if  rdotp < 0.0:
+				r_rel = np.sqrt(np.sum(x_rel**2))
+				x_CM = 0.5*( xQ + xQbar )
 					
-					# momenta in the static medium frame
-					pQ = self.Qlist['4-momentum'][i]
-					pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
+				# momenta in the static medium frame
+				pQ = self.Qlist['4-momentum'][i]
+				pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
 						
-					# CM momentum and velocity
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
-					
-					# the factor of 2 is to account the theta function renormalization					
-					rate_reco_gluon.append(2.0*self.event.get_R1S_reco_gluon(v_CM_abs, self.T, p_rel_abs, r_rel))
+				# CM momentum and velocity
+				v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+				# the factor of 2 is to account the theta function renormalization					
+				rate_reco_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, self.T, p_rel_abs, r_rel))
 			
 			rate_reco_gluon = np.array(rate_reco_gluon)
 			total_rate_reco_gluon += np.sum(rate_reco_gluon)
 		
-		return total_rate_reco_gluon/len_Q
+		return 0.75*8./9.*total_rate_reco_gluon/len_Q
 			
 			
 			
@@ -519,7 +519,7 @@ class QQbar_evol:
 		
 		for i in range(len_Q):
 			len_recoQbar = len(pair_list[i])
-			rate_reco_gluon = []
+			rate_reco_ineq = []
 			for j in range(len_recoQbar):		# loop over Qbar within R_search
 				xQ = self.Qlist['3-position'][i]
 				xQbar = Qbar_x_list[pair_list[i][j]]
@@ -536,15 +536,64 @@ class QQbar_evol:
 						
 				# CM momentum and velocity
 				v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
-					
+				
 				# the factor of 2 is to account the theta function renormalization					
 				rate_reco_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, self.T, p_rel_abs, r_rel))
 			
 			rate_reco_ineq = np.array(rate_reco_ineq)
 			total_rate_reco_ineq += np.sum(rate_reco_ineq)
 		
-		return total_rate_reco_ineq/len_Q		
+		return 0.75*8./9.*total_rate_reco_ineq/len_Q		
 			
 			
+#### -------------------- test ineg recombination -------------------- ####
+	def test_reco_ineg(self):
+		len_Q = len(self.Qlist['4-momentum'])
+		len_Qbar = len(self.Qbarlist['4-momentum'])
+		
+		total_rate_reco_ineg = 0.0
+		
+		# make the periodic box 26 times bigger!
+		Qbar_x_list = np.concatenate((self.Qbarlist['3-position'], 
+		self.Qbarlist['3-position']+[0.0, 0.0, self.Lmax], self.Qbarlist['3-position']+[0.0, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, 0.0], self.Qbarlist['3-position']+[0.0, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, 0.0], self.Qbarlist['3-position']+[-self.Lmax, 0.0, 0.0],
+		self.Qbarlist['3-position']+[0.0, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[0.0, -self.Lmax, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, 0.0, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, 0.0, -self.Lmax],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, 0.0], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, 0.0],
+		self.Qbarlist['3-position']+[self.Lmax, self.Lmax, self.Lmax], self.Qbarlist['3-position']+[self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, self.Lmax],
+		self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, -self.Lmax, self.Lmax], self.Qbarlist['3-position']+[-self.Lmax, self.Lmax, -self.Lmax], self.Qbarlist['3-position']+[self.Lmax, -self.Lmax, -self.Lmax]),
+		axis = 0 )
 			
+		pair_search = cKDTree(Qbar_x_list)
+		# for each Q, obtain the Qbar indexes within R_search
+		pair_list = pair_search.query_ball_point(self.Qlist['3-position'], r = R_search)
+		
+		for i in range(len_Q):
+			len_recoQbar = len(pair_list[i])
+			rate_reco_ineg = []
+			for j in range(len_recoQbar):		# loop over Qbar within R_search
+				xQ = self.Qlist['3-position'][i]
+				xQbar = Qbar_x_list[pair_list[i][j]]
+				x_rel = xQ - xQbar
+				i_Qbar_mod = pair_list[i][j]%len_Qbar	# use for momentum and delete_index
+				#rdotp = np.sum( x_rel* (self.Qlist['4-momentum'][i][1:] - self.Qbarlist['4-momentum'][i_Qbar_mod][1:]) )
+					
+				r_rel = np.sqrt(np.sum(x_rel**2))
+				x_CM = 0.5*( xQ + xQbar )
+					
+				# momenta in the static medium frame
+				pQ = self.Qlist['4-momentum'][i]
+				pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
+						
+				# CM momentum and velocity
+				v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+				
+				# the factor of 2 is to account the theta function renormalization					
+				rate_reco_ineg.append(self.event.get_R1S_reco_ineg(v_CM_abs, self.T, p_rel_abs, r_rel))
+			
+			rate_reco_ineg = np.array(rate_reco_ineg)
+			total_rate_reco_ineg += np.sum(rate_reco_ineg)
+		
+		return 0.75*8./9.*total_rate_reco_ineg/len_Q				
 		

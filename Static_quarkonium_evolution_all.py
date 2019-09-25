@@ -11,7 +11,7 @@ import LorRot
 
 
 #### ---------------------- some constants -----------------------------
-alpha_s = 0.3 				  # for bottomonium
+alpha_s = 0.4 				  # for bottomonium, choose the same value as alpha_s_pot in the cython library
 N_C = 3.0
 T_F = 0.5
 M = 4.65 					  # GeV b-quark
