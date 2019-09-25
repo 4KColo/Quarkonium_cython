@@ -56,14 +56,8 @@ for i in range(N_ave):
 
 
 momentum1s_t = np.array(momentum1s_t)
-print momentum1s_t
 momentum2s_t = np.array(momentum2s_t)
 momentum1p_t = np.array(momentum1p_t)
-momentum1s_t.flatten()
-momentum2s_t.flatten()
-momentum1p_t.flatten()
-print momentum1s_t
-
 N1s_t = np.array(N1s_t)
 N2s_t = np.array(N2s_t)
 N1p_t = np.array(N1p_t)
