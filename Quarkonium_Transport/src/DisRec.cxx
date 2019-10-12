@@ -1604,7 +1604,7 @@ double RV2S_reco_gluon(double v, double T, double p){
 }
 
 double dist_position_2S(double r){
-    double sigma = a_B * InverseFermiToGeV;
+    double sigma = 2.0 * a_B * InverseFermiToGeV;
     return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 
@@ -2514,7 +2514,7 @@ double RV1P_reco_gluon(double v, double T, double p){
 }
 
 double dist_position_1P(double r){
-    double sigma = a_B * InverseFermiToGeV;
+    double sigma = 2.0 * a_B * InverseFermiToGeV;
     return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 

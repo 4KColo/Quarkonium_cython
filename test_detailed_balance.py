@@ -34,7 +34,7 @@ event_gen = QQbar_evol('static', temp_init = T, HQ_scat = True, process = Proces
 for i in range(N_ave):
 	# initialize N_ave number of events
 	#event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, Lmax = 10.0, thermal_dist = True )
-	event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, uniform_dist = True, Pmax = P_sample)
+	event_gen.initialize(N_Q = Nb0, N_Qbar = Nb0, N_U1S = N1s0, N_U2S = N2s0, N_U1P = N1p0, thermal_dist = False, uniform_dist = True, Pmax = P_sample)
 	N1s_t.append([])
 	N2s_t.append([])
 	N1p_t.append([])
