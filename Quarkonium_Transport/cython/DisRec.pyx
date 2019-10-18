@@ -132,12 +132,28 @@ cdef extern from "../src/utility.h":
 	cdef double E2S
 	cdef double E1P
 	cdef double M
+	cdef double a_B
+	cdef double size_2S
+	cdef double size_1P
+	cdef double M1S
+	cdef double M2S
+	cdef double M1P
 		
 # Provide a direct python wrapper for these functions for tests
+def pyM():
+	return M
 def pyE1S():
 	return E1S
 def pyE2S():
 	return E2S
+def pyE1P():
+	return E1P
+def pyM1S():
+	return M1S
+def pyM2S():
+	return M2S
+def pyM1P():
+	return M1P
 #------------------------------- rates -----------------------------
 def pyR1S_decay_gluon(double vabs, double T):
 	return R1S_decay_gluon(vabs, T)
@@ -745,11 +761,21 @@ cdef class DisRec(object):
 								
 	##----------------- define function that can be called to sample ------------------##
 	# position of decay products
-	cpdef vector[double] sample_decay_position(self, double sigma):
+	cpdef vector[double] sample_S1S_decay_position(self):
 		cdef vector[double] r
-		r = np.array(S_decay_position(sigma))
+		r = np.array(S_decay_position(a_B))
+		return r
+
+	cpdef vector[double] sample_S2S_decay_position(self):
+		cdef vector[double] r
+		r = np.array(S_decay_position(size_2S))
 		return r
 	
+	cpdef vector[double] sample_S1P_decay_position(self):
+		cdef vector[double] r
+		r = np.array(S_decay_position(size_1P))
+		return r
+			
 	# 1S gluon dissociation		
 	cpdef vector[double] sample_S1S_decay_gluon(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar

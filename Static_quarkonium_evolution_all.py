@@ -11,19 +11,6 @@ import LorRot
 
 
 #### ---------------------- some constants -----------------------------
-alpha_s = 0.4 				  # for bottomonium, choose the same value as alpha_s_pot in the cython library
-N_C = 3.0
-T_F = 0.5
-M = 4.65 					  # GeV b-quark
-rho_c = 1.0/(N_C**2-1.0)
-C_F = 4.0/3.0
-a_B = 2.0/(alpha_s*C_F*M)
-E_1S = alpha_s*C_F/(2.0*a_B)  # Upsilon(1S), here is magnitude, true value is its negative
-E_2S = E_1S/4.0
-E_1P = E_1S/4.0
-M_1S = M*2.0 - E_1S  		  # mass of Upsilon(1S)
-M_2S = M*2.0 - E_2S
-M_1P = M*2.0 - E_1P
 C1 = 0.197327                 # 0.197 GeV*fm = 1
 R_search = 1.0				  # (fm), pair-search radius in the recombination
 
@@ -81,6 +68,10 @@ class QQbar_evol:
 			self.HQ_diff = HQ_p_update()
 		## ---------- create the rates reader --------- ##
 		self.event = DisRec.DisRec()
+		self.M = DisRec.pyM()
+		self.M1S = DisRec.pyM1S()
+		self.M2S = DisRec.pyM2S()
+		self.M1P = DisRec.pyM1P()
 		
 ####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
 	def initialize(self, N_Q = 100, N_Qbar = 100, N_U1S = 0, N_U2S = 0, N_U1P = 0, Lmax = 10.0, thermal_dist = False,
@@ -102,21 +93,21 @@ class QQbar_evol:
 			## --------- sample initial momenta and positions -------- ##
 			if thermal_dist == True:
 				for i in range(N_Q):
-					self.Qlist['4-momentum'].append( thermal_sample(self.T, M) )
+					self.Qlist['4-momentum'].append( thermal_sample(self.T, self.M) )
 					self.Qlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_Qbar):
-					self.Qbarlist['4-momentum'].append( thermal_sample(self.T, M) )
+					self.Qbarlist['4-momentum'].append( thermal_sample(self.T, self.M) )
 					self.Qbarlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_U1S):
-					self.U1Slist['4-momentum'].append( thermal_sample(self.T, M_1S) )
+					self.U1Slist['4-momentum'].append( thermal_sample(self.T, self.M_1S) )
 					self.U1Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Slist['last_form_time'].append( self.t )
 				for i in range(N_U2S):
-					self.U2Slist['4-momentum'].append( thermal_sample(self.T, M_2S) )
+					self.U2Slist['4-momentum'].append( thermal_sample(self.T, self.M_2S) )
 					self.U2Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U2Slist['last_form_time'].append( self.t )
 				for i in range(N_U1P):
-					self.U1Plist['4-momentum'].append( thermal_sample(self.T, M_1P) )
+					self.U1Plist['4-momentum'].append( thermal_sample(self.T, self.M_1P) )
 					self.U1Plist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Plist['last_form_time'].append( self.t )
 													
@@ -124,65 +115,65 @@ class QQbar_evol:
 				p_generator = Static_Initial_Sample(Fonll_path, rapidity = 0.)
 				
 				for i in range(N_Q):
-					self.Qlist['4-momentum'].append( p_generator.p_HQ_sample(M) )
+					self.Qlist['4-momentum'].append( p_generator.p_HQ_sample(self.M) )
 					self.Qlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_Qbar):
-					self.Qbarlist['4-momentum'].append( p_generator.p_HQ_sample(M) )
+					self.Qbarlist['4-momentum'].append( p_generator.p_HQ_sample(self.M) )
 					self.Qbarlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_U1S):
-					self.U1Slist['4-momentum'].append( p_generator.p_U_sample(M, M_1S) )
+					self.U1Slist['4-momentum'].append( p_generator.p_U_sample(self.M, self.M_1S) )
 					self.U1Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Slist['last_form_time'].append( self.t )
 				for i in range(N_U2S):
-					self.U2Slist['4-momentum'].append( p_generator.p_U_sample(M, M_2S) )
+					self.U2Slist['4-momentum'].append( p_generator.p_U_sample(self.M, self.M_2S) )
 					self.U2Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U2Slist['last_form_time'].append( self.t )
 				for i in range(N_U1P):
-					self.U1Plist['4-momentum'].append( p_generator.p_U_sample(M, M_1P) )
+					self.U1Plist['4-momentum'].append( p_generator.p_U_sample(self.M, self.M_1P) )
 					self.U1Plist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Plist['last_form_time'].append( self.t )
 													
 			if uniform_dist == True:
 				for i in range(N_Q):
-					self.Qlist['4-momentum'].append( uniform_sample(Pmax, M) )
+					self.Qlist['4-momentum'].append( uniform_sample(Pmax, self.M) )
 					self.Qlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_Qbar):
-					self.Qbarlist['4-momentum'].append( uniform_sample(Pmax, M) )
+					self.Qbarlist['4-momentum'].append( uniform_sample(Pmax, self.M) )
 					self.Qbarlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_U1S):
-					self.U1Slist['4-momentum'].append( uniform_sample(Pmax, M_1S) )
+					self.U1Slist['4-momentum'].append( uniform_sample(Pmax, self.M_1S) )
 					self.U1Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Slist['last_form_time'].append( self.t )
 				for i in range(N_U2S):
-					self.U2Slist['4-momentum'].append( uniform_sample(Pmax, M_2S) )
+					self.U2Slist['4-momentum'].append( uniform_sample(Pmax, self.M_2S) )
 					self.U2Slist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U2Slist['last_form_time'].append( self.t )
 				for i in range(N_U1P):
-					self.U1Plist['4-momentum'].append( uniform_sample(Pmax, M_1P) )
+					self.U1Plist['4-momentum'].append( uniform_sample(Pmax, self.M_1P) )
 					self.U1Plist['3-position'].append( np.random.rand(3)*Lmax )
 					self.U1Plist['last_form_time'].append( self.t )
 													
 			if decaytestmode == True:
 				if decaystate == '1S':
-					E_decaytest_1S = np.sqrt(M_1S**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
+					E_decaytest_1S = np.sqrt(self.M_1S**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
 					p4_1S = np.append(E_decaytest_1S, P_decaytest)
-					p4_2S = [M_2S, 0.0, 0.0, 0.0]
-					p4_1P = [M_1P, 0.0, 0.0, 0.0]
+					p4_2S = [self.M_2S, 0.0, 0.0, 0.0]
+					p4_1P = [self.M_1P, 0.0, 0.0, 0.0]
 				if decaystate == '2S':
-					E_decaytest_2S = np.sqrt(M_2S**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
+					E_decaytest_2S = np.sqrt(self.M_2S**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
 					p4_2S = np.append(E_decaytest_2S, P_decaytest)
-					p4_1S = [M_1S, 0.0, 0.0, 0.0]
-					p4_1P = [M_1P, 0.0, 0.0, 0.0]
+					p4_1S = [self.M_1S, 0.0, 0.0, 0.0]
+					p4_1P = [self.M_1P, 0.0, 0.0, 0.0]
 				if decaystate == '1P':
-					E_decaytest_1P = np.sqrt(M_1P**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
+					E_decaytest_1P = np.sqrt(self.M_1P**2 + P_decaytest[0]**2 + P_decaytest[1]**2 + P_decaytest[2]**2)
 					p4_1P = np.append(E_decaytest_1P, P_decaytest)
-					p4_1S = [M_1S, 0.0, 0.0, 0.0]
-					p4_2S = [M_2S, 0.0, 0.0, 0.0]
+					p4_1S = [self.M_1S, 0.0, 0.0, 0.0]
+					p4_2S = [self.M_2S, 0.0, 0.0, 0.0]
 				for i in range(N_Q):
-					self.Qlist['4-momentum'].append( [M, 0.0, 0.0, 0.0] )
+					self.Qlist['4-momentum'].append( [self.M, 0.0, 0.0, 0.0] )
 					self.Qlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_Qbar):
-					self.Qbarlist['4-momentum'].append( [M, 0.0, 0.0, 0.0] )
+					self.Qbarlist['4-momentum'].append( [self.M, 0.0, 0.0, 0.0] )
 					self.Qbarlist['3-position'].append( np.random.rand(3)*Lmax )
 				for i in range(N_U1S):
 					self.U1Slist['4-momentum'].append( p4_1S )
@@ -314,8 +305,9 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = (self.U1Slist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
-				position_Qbar = (self.U1Slist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
+				x_rel = self.sample_S1S_decay_position()/2.)%self.Lmax
+				position_Q = (self.U1Slist['3-position'][i] + x_rel
+				position_Qbar = (self.U1Slist['3-position'][i] - x_rel
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -374,8 +366,9 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = (self.U2Slist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
-				position_Qbar = (self.U2Slist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
+				x_rel = self.sample_S2S_decay_position()/2.)%self.Lmax
+				position_Q = (self.U2Slist['3-position'][i] + x_rel
+				position_Qbar = (self.U2Slist['3-position'][i] - x_rel
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -435,8 +428,9 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = (self.U1Plist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
-				position_Qbar = (self.U1Plist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
+				x_rel = self.sample_S1P_decay_position()/2.)%self.Lmax
+				position_Q = (self.U1Plist['3-position'][i] + x_rel
+				position_Qbar = (self.U1Plist['3-position'][i] - x_rel
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -493,7 +487,7 @@ class QQbar_evol:
 						pQ = self.Qlist['4-momentum'][i]
 						pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
 						# CM momentum and velocity
-						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 						# r_rel = np.sqrt(np.sum(x_rel**2))
 						
 						# relative position in QQbar rest frame
@@ -619,7 +613,7 @@ class QQbar_evol:
 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
 					
 					# CM momentum and velocity
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':
@@ -674,7 +668,7 @@ class QQbar_evol:
 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
 					
 					# CM momentum and velocity
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':
@@ -729,7 +723,7 @@ class QQbar_evol:
 					pQbar = self.Qbarlist['4-momentum'][pair_list[i][k]%len_Qbar]
 					
 					# CM momentum and velocity
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':

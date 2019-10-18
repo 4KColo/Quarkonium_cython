@@ -7,6 +7,8 @@ const double Nc = 3., TF = 0.5, CF = 4./3.;
 const double rho_c = 1./(Nc*Nc - 1.);
 const double M = 4.65; //[GeV]
 const double a_B = 2./pot_alpha_s/CF/M;
+const double size_2S = a_B;
+const double size_1P = a_B;
 const double E1S = pot_alpha_s*CF/2./a_B;
 const double M1S = 2.*M - E1S;
 const double E2S = E1S/4.;
