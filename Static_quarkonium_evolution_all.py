@@ -252,7 +252,7 @@ class QQbar_evol:
 		add_pQ = []
 		add_pQbar = []
 		add_xQ = []
-		#add_xQbar = [] the positions of Q and Qbar are the same
+		add_xQbar = [] # the positions of Q and Qbar can be different
 		
 		## 1S decay
 		for i in range(len_U1S):
@@ -305,7 +305,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.event.sample_S1S_decay_position()/2.
+				x_rel = np.array(self.event.sample_S1S_decay_position())/2.
 				position_Q = (self.U1Slist['3-position'][i] + x_rel)%self.Lmax
 				position_Qbar = (self.U1Slist['3-position'][i] - x_rel)%self.Lmax
 		
@@ -366,7 +366,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.event.sample_S2S_decay_position()/2.
+				x_rel = np.array(self.event.sample_S2S_decay_position())/2.
 				position_Q = (self.U2Slist['3-position'][i] + x_rel)%self.Lmax
 				position_Qbar = (self.U2Slist['3-position'][i] - x_rel)%self.Lmax
 		
@@ -428,7 +428,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.event.sample_S1P_decay_position()/2.
+				x_rel = np.array(self.event.sample_S1P_decay_position())/2.
 				position_Q = (self.U1Plist['3-position'][i] + x_rel)%self.Lmax
 				position_Qbar = (self.U1Plist['3-position'][i] - x_rel)%self.Lmax
 		
@@ -764,7 +764,7 @@ class QQbar_evol:
 		add_pQ = np.array(add_pQ)
 		add_pQbar = np.array(add_pQbar)
 		add_xQ = np.array(add_xQ)
-		#add_xQbar = np.array(add_xQbar)
+		add_xQbar = np.array(add_xQbar)
 		if len(add_pQ):	
 			# if there is at least quarkonium decays, we need to update all the three lists
 			self.U1Slist['3-position'] = np.delete(self.U1Slist['3-position'], delete_U1S, axis=0) # delete along the axis = 0
