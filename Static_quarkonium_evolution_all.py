@@ -305,7 +305,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.sample_S1S_decay_position()/2.)%self.Lmax
+				x_rel = (self.sample_S1S_decay_position()/2.)%self.Lmax
 				position_Q = (self.U1Slist['3-position'][i] + x_rel
 				position_Qbar = (self.U1Slist['3-position'][i] - x_rel
 		
@@ -366,7 +366,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.sample_S2S_decay_position()/2.)%self.Lmax
+				x_rel = (self.sample_S2S_decay_position()/2.)%self.Lmax
 				position_Q = (self.U2Slist['3-position'][i] + x_rel
 				position_Qbar = (self.U2Slist['3-position'][i] - x_rel
 		
@@ -428,7 +428,7 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = self.sample_S1P_decay_position()/2.)%self.Lmax
+				x_rel = (self.sample_S1P_decay_position()/2.)%self.Lmax
 				position_Q = (self.U1Plist['3-position'][i] + x_rel
 				position_Qbar = (self.U1Plist['3-position'][i] - x_rel
 		
