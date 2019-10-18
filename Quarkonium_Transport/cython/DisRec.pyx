@@ -64,7 +64,10 @@ cdef extern from "../src/DisRec.h":
 	cdef vector[double] S2S_decay_ineg_test(double v, double T, double maximum)
 	cdef vector[double] S1P_decay_ineg(double v, double T, double maximum)
 	cdef vector[double] S1P_decay_ineg_test(double v, double T, double maximum)
-				
+	
+	# function used to sample position of decay products
+	cdef vector[double] S_decay_position(double sigma)
+	
 	# function related to real gluon recombine rate
 	cdef double RV1S_reco_gluon(double v, double T, double p)
 	cdef double RV2S_reco_gluon(double v, double T, double p)
@@ -741,6 +744,12 @@ cdef class DisRec(object):
 		return Rvol * dist_position_1P(r)	
 								
 	##----------------- define function that can be called to sample ------------------##
+	# position of decay products
+	cpdef vector[double] sample_decay_position(self, double sigma):
+		cdef vector[double] r
+		r = np.array(S_decay_position(sigma))
+		return r
+	
 	# 1S gluon dissociation		
 	cpdef vector[double] sample_S1S_decay_gluon(self, double v, double T):
 		cdef vector[double] pQpQbar, pQ, pQbar

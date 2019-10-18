@@ -222,6 +222,9 @@ double S1P_reco_ineg_q1_important(double q1low, double q1up, double result_max, 
 std::vector<double> S1P_reco_ineg(double v, double T, double p, double maximum);
 std::vector<double> S1P_reco_ineg_test(double v, double T, double p, double maximum);
 
+// sample positions of decay products
+std::vector<double> S_decay_position(double sigma);
+
 // change polar coordinates to cartisian coordinates
 std::vector<double> p3top4_Q(std::vector<double> p3);
 std::vector<double> p3top4_quarkonia_1S(std::vector<double> p3);

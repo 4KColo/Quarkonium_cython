@@ -18,7 +18,7 @@ std::uniform_real_distribution<double> y_cdf(0., 1.);
 std::uniform_real_distribution<double> reco_uniform(-1., 1.);
 std::uniform_real_distribution<double> sample_inel(0., 1.);
 std::uniform_real_distribution<double> sample_cos(-1., 1.);
-
+std::uniform_real_distribution<double> gaussian(0., 1.);
 
 // find maximum of a function
 // only works for positive-function with one local maximum within [xL, xH]
@@ -249,6 +249,7 @@ std::vector<double> S1S_decay_gluon(double v, double T, double maximum){
     pQpQbar_final = add_real_gluon(momentum_gluon, momentum_rel);
     return pQpQbar_final;
 }
+
 //---------------------- end of gluo-dissociation -----------------------
 
 
@@ -2861,7 +2862,23 @@ std::vector<double> S1P_reco_ineg_test(double v, double T, double p, double maxi
 
 // --------------------------------------------- end of 1P recombination ------------------------------------------
 
-
+// sample positions of decay products
+std::vector<double> S_decay_position(double sigma){
+    std::vector<double> r(3);
+    double x_u1 = gaussian(gen);
+    double y_u1 = gaussian(gen);
+    double z_u1 = gaussian(gen);
+    double x_u2 = gaussian(gen);
+    double y_u2 = gaussian(gen);
+    double z_u2 = gaussian(gen);
+    double x = std::sqrt(-2.*std::log(x_u1)) * std::cos(2.*M_PI*x_u2) * sigma;
+    double y = std::sqrt(-2.*std::log(y_u1)) * std::cos(2.*M_PI*y_u2) * sigma;
+    double z = std::sqrt(-2.*std::log(z_u1)) * std::cos(2.*M_PI*z_u2) * sigma;
+    r[0] = x;
+    r[1] = y;
+    r[2] = z;
+    return r;
+}
 
 // convert 3-momentum to 4-momentum for Q, Qbar
 std::vector<double> p3top4_Q(std::vector<double> p3){
