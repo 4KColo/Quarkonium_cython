@@ -83,7 +83,7 @@ class QQbar_evol:
 		self.event = DisRec.DisRec()
 		
 ####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
-	def initialize(self, N_Q = 100, N_Qbar = 100, N_U1S = 0, N_U2S = 0, N_U1P = 0, Lmax = 10.0, thermal_dist = True,
+	def initialize(self, N_Q = 100, N_Qbar = 100, N_U1S = 0, N_U2S = 0, N_U1P = 0, Lmax = 10.0, thermal_dist = False,
 	fonll_dist = False, Fonll_path = False, uniform_dist = False, Pmax = 10.0, decaytestmode = False, decaystate = '1S', P_decaytest = [0.0, 0.0, 5.0]):
 		# initial momentum: thermal; Fonll (give the fonll file path), uniform in x,y,z (give the Pmax in GeV)
         # if decaytestmode: give initial Px,Py,Pz in GeV
@@ -314,14 +314,14 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = self.U1Slist['3-position'][i]
-				#position_Qbar = position_Q
+				position_Q = (self.U1Slist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
+				position_Qbar = (self.U1Slist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
 				add_pQbar.append(momentum_Qbar)
 				add_xQ.append(position_Q)
-				#add_xQbar.append(position_Qbar)
+				add_xQbar.append(position_Qbar)
 				
 		## 2S decay
 		for i in range(len_U2S):
@@ -374,14 +374,14 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = self.U2Slist['3-position'][i]
-				#position_Qbar = position_Q
+				position_Q = (self.U2Slist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
+				position_Qbar = (self.U2Slist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
 				add_pQbar.append(momentum_Qbar)
 				add_xQ.append(position_Q)
-				#add_xQbar.append(position_Qbar)
+				add_xQbar.append(position_Qbar)
 
 
 		## 1P decay
@@ -435,14 +435,14 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				position_Q = self.U1Plist['3-position'][i]
-				#position_Qbar = position_Q
+				position_Q = (self.U1Plist['3-position'][i] + self.sample_decay_position(a_B)/2.)%self.Lmax
+				position_Qbar = (self.U1Plist['3-position'][i] - self.sample_decay_position(a_B)/2.)%self.Lmax
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
 				add_pQbar.append(momentum_Qbar)
 				add_xQ.append(position_Q)
-				#add_xQbar.append(position_Qbar)
+				add_xQbar.append(position_Qbar)
 				
 		### ------------------ end of decay ------------------- ###
 		
@@ -793,7 +793,7 @@ class QQbar_evol:
 				self.Qbarlist['3-position'] = np.array(add_xQ)
 				self.Qbarlist['4-momentum'] = np.array(add_pQbar)
 			else:
-				self.Qbarlist['3-position'] = np.append(self.Qbarlist['3-position'], add_xQ, axis=0)
+				self.Qbarlist['3-position'] = np.append(self.Qbarlist['3-position'], add_xQbar, axis=0)
 				self.Qbarlist['4-momentum'] = np.append(self.Qbarlist['4-momentum'], add_pQbar, axis=0)
 		
 		### ---------- end of update lists due to decay ------- ###
