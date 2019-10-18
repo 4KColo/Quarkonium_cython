@@ -763,18 +763,18 @@ cdef class DisRec(object):
 	# position of decay products
 	cpdef vector[double] sample_S1S_decay_position(self):
 		cdef vector[double] r
-		r = np.array(S_decay_position(a_B))
-		return r
+		r = S_decay_position(a_B)
+		return np.array(r)
 
 	cpdef vector[double] sample_S2S_decay_position(self):
 		cdef vector[double] r
-		r = np.array(S_decay_position(size_2S))
-		return r
+		r = S_decay_position(size_2S)
+		return np.array(r)
 	
 	cpdef vector[double] sample_S1P_decay_position(self):
 		cdef vector[double] r
-		r = np.array(S_decay_position(size_1P))
-		return r
+		r = S_decay_position(size_1P)
+		return np.array(r)
 			
 	# 1S gluon dissociation		
 	cpdef vector[double] sample_S1S_decay_gluon(self, double v, double T):
