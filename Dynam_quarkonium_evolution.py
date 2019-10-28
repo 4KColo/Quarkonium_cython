@@ -32,9 +32,10 @@ class QQbar_evol:
 		self.hydro = hydro_reader( hydro_file_path = 'HydroData'+str(energy_GeV)+'GeV'+centrality_str_given+'.h5' )
 		## -------------- create the rates event reader ------------ ##
 		self.event = DisRec.DisRec()
+		self.M = DisRec.pyM()  # heavy quark mass
 		## -------------- create HQ-diff rates reader -------- ##
 		if self.HQ_scat == True:
-			self.HQ_event = HQ_diff(Mass = M)
+			self.HQ_event = HQ_diff(Mass = self.M)
 		## -------------- create init p,x sampler ------------ ##
 		self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
 
@@ -423,14 +424,14 @@ class QQbar_evol:
 						pQbar_lab = self.Qbarlist['4-momentum'][pair_list[i][j]]
 						# CM energy in the lab frame
 						p_CMlab = pQ_lab[1:] + pQbar_lab[1:]
-						E_CMlab = np.sqrt(np.sum(p_CMlab**2) + (2.*M)**2)
+						E_CMlab = np.sqrt(np.sum(p_CMlab**2) + (2.*self.M)**2)
 						
 						# momenta into hydro cell frame
 						pQ = LorRot.lorentz(pQ_lab, T_Vxyz[1:])
 						pQbar = LorRot.lorentz(pQbar_lab, T_Vxyz[1:])
 						
 						# 3-velocity, velocity magnitude, relative momentum in hydro cell frame
-						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 						E_CM = 2.0*M/np.sqrt(1.-v_CM_abs**2)
 						
 						rate_reco1S_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, T_Vxyz[0], p_rel_abs, r_rel)*E_CM/E_CMlab)
@@ -519,7 +520,7 @@ class QQbar_evol:
 					pQbar = LorRot.lorentz(self.Qbarlist['4-momentum'][pair_list[i][k]], T_Vxyz[1:])
 					
 					# 3-velocity, velocity, relative momentum in hydro cell frame
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':
@@ -580,7 +581,7 @@ class QQbar_evol:
 					pQbar = LorRot.lorentz(self.Qbarlist['4-momentum'][pair_list[i][k]], T_Vxyz[1:])
 					
 					# 3-velocity, velocity, relative momentum in hydro cell frame
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':
@@ -642,7 +643,7 @@ class QQbar_evol:
 					pQbar = LorRot.lorentz(self.Qbarlist['4-momentum'][pair_list[i][k]], T_Vxyz[1:])
 					
 					# 3-velocity, velocity magnitude, relative momentum in hydro cell frame
-					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*M)
+					v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
 
 					# calculate the final quarkonium momenta in the CM frame of QQbar, depends on channel_reco
 					if channel_reco == 'gluon':
