@@ -305,9 +305,11 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = np.array(self.event.sample_S1S_decay_position())/2.
-				position_Q = (self.U1Slist['3-position'][i] + x_rel)%self.Lmax
-				position_Qbar = (self.U1Slist['3-position'][i] - x_rel)%self.Lmax
+				#x_rel = np.array(self.event.sample_S1S_decay_position())/2.
+				#position_Q = (self.U1Slist['3-position'][i] + x_rel)%self.Lmax
+				#position_Qbar = (self.U1Slist['3-position'][i] - x_rel)%self.Lmax
+				position_Q = self.U1Slist['3-position'][i]
+				position_Qbar = self.U1Slist['3-position'][i]
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -339,7 +341,6 @@ class QQbar_evol:
 			prob_decay2S_gluon = rate_decay2S_gluon * dt/C1
 			prob_decay2S_ineq = rate_decay2S_ineq * dt/C1
 			prob_decay2S_ineg = rate_decay2S_ineg * dt/C1
-			#print prob_decay2S_gluon, prob_decay2S_ineq, prob_decay2S_ineg
 			rej_mc = np.random.rand(1)
 			
 			if rej_mc <= prob_decay2S_gluon + prob_decay2S_ineq + prob_decay2S_ineg:
@@ -366,9 +367,11 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = np.array(self.event.sample_S2S_decay_position())/2.
-				position_Q = (self.U2Slist['3-position'][i] + x_rel)%self.Lmax
-				position_Qbar = (self.U2Slist['3-position'][i] - x_rel)%self.Lmax
+				#x_rel = np.array(self.event.sample_S2S_decay_position())/2.
+				#position_Q = (self.U2Slist['3-position'][i] + x_rel)%self.Lmax
+				#position_Qbar = (self.U2Slist['3-position'][i] - x_rel)%self.Lmax
+				position_Q = self.U2Slist['3-position'][i]
+				position_Qbar = self.U2Slist['3-position'][i]
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -428,9 +431,11 @@ class QQbar_evol:
 				momentum_Qbar = LorRot.lorentz(rotmomentum_Qbar, -v3_in_box)	# final momentum of Qbar
 				
 				# positions of Q and Qbar
-				x_rel = np.array(self.event.sample_S1P_decay_position())/2.
-				position_Q = (self.U1Plist['3-position'][i] + x_rel)%self.Lmax
-				position_Qbar = (self.U1Plist['3-position'][i] - x_rel)%self.Lmax
+				#x_rel = np.array(self.event.sample_S1P_decay_position())/2.
+				#position_Q = (self.U1Plist['3-position'][i] + x_rel)%self.Lmax
+				#position_Qbar = (self.U1Plist['3-position'][i] - x_rel)%self.Lmax
+				position_Q = self.U1Plist['3-position'][i]
+				position_Qbar = self.U1Plist['3-position'][i]
 		
 				# add x and p for the QQbar to the temporary list
 				add_pQ.append(momentum_Q)
@@ -488,12 +493,12 @@ class QQbar_evol:
 						pQbar = self.Qbarlist['4-momentum'][i_Qbar_mod]
 						# CM momentum and velocity
 						v_CM, v_CM_abs, p_rel_abs = LorRot.vCM_prel(pQ, pQbar, 2.0*self.M)
-						# r_rel = np.sqrt(np.sum(x_rel**2))
+						r_rel = np.sqrt(np.sum(x_rel**2))
 						
 						# relative position in QQbar rest frame
-						x4_rel_lab = np.array([0.0, x_rel[0], x_rel[1], x_rel[2]])
-						x4_rel_rest = LorRot.lorentz(x4_rel_lab, v_CM)
-						r_rel = np.sqrt(np.sum(x4_rel_rest[1:]**2))
+						#x4_rel_lab = np.array([0.0, x_rel[0], x_rel[1], x_rel[2]])
+						#x4_rel_rest = LorRot.lorentz(x4_rel_lab, v_CM)
+						#r_rel = np.sqrt(np.sum(x4_rel_rest[1:]**2))
 						
 						rate_reco1S_gluon.append(self.event.get_R1S_reco_gluon(v_CM_abs, self.T, p_rel_abs, r_rel))
 						rate_reco1S_ineq.append(self.event.get_R1S_reco_ineq(v_CM_abs, self.T, p_rel_abs, r_rel))
@@ -516,7 +521,8 @@ class QQbar_evol:
 						rate_reco1P_ineg.append(0.)
 											
 				# get the recombine probability
-				# 3/4 factor for Upsilon(1S) v.s. eta_b
+				# spin 3/4 factor for Upsilon(1S, 2S) v.s. eta_b
+				# spin 1 for chi_b(1P)
 				if self.process == 'all':
 					prob_reco1S_gluon = 0.75*8./9.*np.array(rate_reco1S_gluon)*dt/C1
 					prob_reco1S_ineq = 0.75*8./9.*np.array(rate_reco1S_ineq)*dt/C1
@@ -524,9 +530,9 @@ class QQbar_evol:
 					prob_reco2S_gluon = 0.75*8./9.*np.array(rate_reco2S_gluon)*dt/C1
 					prob_reco2S_ineq = 0.75*8./9.*np.array(rate_reco2S_ineq)*dt/C1
 					prob_reco2S_ineg = 0.75*8./9.*np.array(rate_reco2S_ineg)*dt/C1
-					prob_reco1P_gluon = 0.75*8./9.*np.array(rate_reco1P_gluon)*dt/C1
-					prob_reco1P_ineq = 0.75*8./9.*np.array(rate_reco1P_ineq)*dt/C1
-					prob_reco1P_ineg = 0.75*8./9.*np.array(rate_reco1P_ineg)*dt/C1
+					prob_reco1P_gluon = 8./9.*np.array(rate_reco1P_gluon)*dt/C1
+					prob_reco1P_ineq = 8./9.*np.array(rate_reco1P_ineq)*dt/C1
+					prob_reco1P_ineg = 8./9.*np.array(rate_reco1P_ineg)*dt/C1
 				if self.process == 'gluon':
 					prob_reco1S_gluon = 0.75*8./9.*np.array(rate_reco1S_gluon)*dt/C1
 					prob_reco1S_ineq = 0.0*np.array(rate_reco1S_ineq)
@@ -534,7 +540,7 @@ class QQbar_evol:
 					prob_reco2S_gluon = 0.75*8./9.*np.array(rate_reco2S_gluon)*dt/C1
 					prob_reco2S_ineq = 0.0*np.array(rate_reco2S_ineq)
 					prob_reco2S_ineg = 0.0*np.array(rate_reco2S_ineg)
-					prob_reco1P_gluon = 0.75*8./9.*np.array(rate_reco1P_gluon)*dt/C1
+					prob_reco1P_gluon = 8./9.*np.array(rate_reco1P_gluon)*dt/C1
 					prob_reco1P_ineq = 0.0*np.array(rate_reco1P_ineq)
 					prob_reco1P_ineg = 0.0*np.array(rate_reco1P_ineg)
 				if self.process == 'ineq':
@@ -545,7 +551,7 @@ class QQbar_evol:
 					prob_reco2S_ineq = 0.75*8./9.*np.array(rate_reco2S_ineq)*dt/C1
 					prob_reco2S_ineg = 0.0*np.array(rate_reco2S_ineg)
 					prob_reco1P_gluon = 0.0*np.array(rate_reco1P_gluon)
-					prob_reco1P_ineq = 0.75*8./9.*np.array(rate_reco1P_ineq)*dt/C1
+					prob_reco1P_ineq = 8./9.*np.array(rate_reco1P_ineq)*dt/C1
 					prob_reco1P_ineg = 0.0*np.array(rate_reco1P_ineg)
 				if self.process == 'ineg':
 					prob_reco1S_gluon = 0.0*np.array(rate_reco1S_gluon)
@@ -556,7 +562,7 @@ class QQbar_evol:
 					prob_reco2S_ineg = 0.75*8./9.*np.array(rate_reco2S_ineg)*dt/C1
 					prob_reco1P_gluon = 0.0*np.array(rate_reco1P_gluon)
 					prob_reco1P_ineq = 0.0*np.array(rate_reco1P_ineq)
-					prob_reco1P_ineg = 0.75*8./9.*np.array(rate_reco1P_ineg)*dt/C1
+					prob_reco1P_ineg = 8./9.*np.array(rate_reco1P_ineg)*dt/C1
 									
 				prob_reco1S_all = prob_reco1S_gluon + prob_reco1S_ineq + prob_reco1S_ineg
 				prob_reco2S_all = prob_reco2S_gluon + prob_reco2S_ineq + prob_reco2S_ineg
