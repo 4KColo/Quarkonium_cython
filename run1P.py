@@ -4,10 +4,6 @@ import scipy.integrate as si
 from Dynam_quarkonium_evolution import QQbar_evol
 import h5py
 
-t_hydro = {'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8.8,
-				  '40-50':7.7, '50-60':6.6, '60-70':5.5, '70-80':4.4, '80-90':3.4, '90-100':1.0},
-		'5020':{'0-5':12.9, '5-10':12.2, '10-20':11.2, '20-30':10.1, '30-40':9.2,
-			   '40-50':8.1, '50-60':7.0, '60-70':5.9, '70-80':4.7, '80-90':3.8, '90-100':1.24}}
 
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
@@ -19,7 +15,7 @@ dt_run = 0.005
 N_step = t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
 tmax = N_step*dt_run
 t = np.linspace(0.0, tmax, N_step+1)
-p4i_1S = []			# initial p4
+p4i_1P = []			# initial p4
 p4f_1S = []			# final p4
 p4f_2S = []
 p4f_1P = []
@@ -31,10 +27,9 @@ N2S_t = []			# time sequence of No. of 2S state
 N1P_t = []			# time sequence of No. of 1P state
 
 # define the event generator
-event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = '1S')
+event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = '1P')
 
 for i in range(N_ave):
-	#print i
 	# initialize N_ave number of events
 	event_gen.initialize()
 	N1S_t.append([])
@@ -42,9 +37,9 @@ for i in range(N_ave):
 	N1P_t.append([])
 	
 	# store initial momenta
-	leni_1S = len(event_gen.U1Slist['4-momentum'])	# initial No. of 1S
-	for k in range(leni_1S):
-		p4i_1S.append(event_gen.U1Slist['4-momentum'][k])
+	leni_1P = len(event_gen.U1Plist['4-momentum'])	# initial No. of 1S
+	for k in range(leni_1P):
+		p4i_1P.append(event_gen.U1Plist['4-momentum'][k])
 		
 	# run the event
 	for j in range(N_step+1):
@@ -56,7 +51,7 @@ for i in range(N_ave):
 	# store final momenta
 	lenf_1S = len(event_gen.U1Slist['4-momentum'])	# final No. of 1S
 	lenf_2S = len(event_gen.U2Slist['4-momentum'])	# final No. of 2S
-	lenf_1P = len(event_gen.U1Plist['4-momentum'])	# final No. of 2S
+	lenf_1P = len(event_gen.U1Plist['4-momentum'])	# final No. of 1P
 	for k in range(lenf_1S):
 		p4f_1S.append(event_gen.U1Slist['4-momentum'][k])
 		tForm_1S.append(event_gen.U1Slist['last_form_time'][k])
@@ -82,14 +77,14 @@ N1P_t_ave = np.sum(N1P_t, axis = 0)/(N_ave + 0.0)
 
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_1S.hdf5', 'w')
-file1.create_dataset('1Sp4initial', data = p4i_1S)
+file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_2S.hdf5', 'w')
 file1.create_dataset('1Sp4final', data = p4f_1S)
 file1.create_dataset('1Snumber', data = N1S_t_ave)
 file1.create_dataset('1Sformtime', data = tForm_1S)
 file1.create_dataset('2Sp4final', data = p4f_2S)
 file1.create_dataset('2Snumber', data = N2S_t_ave)
 file1.create_dataset('2Sformtime', data = tForm_2S)
+file1.create_dataset('1Pp4initial', data = p4i_1P)
 file1.create_dataset('1Pp4final', data = p4f_1P)
 file1.create_dataset('1Pnumber', data = N1P_t_ave)
 file1.create_dataset('1Pformtime', data = tForm_1P)

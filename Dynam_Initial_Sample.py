@@ -6,7 +6,7 @@ import LorRot
 
 # Parameters: 	norm=132, nucleon-width=0.51fm, fluctuation=1.6, p = 0
 #				(for norm=?, see 1605.03954)
-# 				grid-max=15.05fm, (grid value is at the center of grid) 
+# 				grid-max=13.05fm, (grid value is at the center of grid) 
 #				grid-step=0.1fm
 # EoS: HotQCD, e(T=Tc) = 0.329 Gev/fm^3, eta/s = 0.08+1*(T-Tc), bulk_norm=0.01, bulk_width=0.01
 
@@ -43,7 +43,7 @@ class Dynam_Initial_Sample:
 		self.dx = 0.1 	# fm
 		self.dy = 0.1	# fm
 		T_tot = np.sum(Tab_flat)
-		T_AA_mb = T_AA_mb = Taa[str(energy_GeV)][centrality_str]
+		T_AA_mb = Taa[str(energy_GeV)][centrality_str]
 		T_norm = Tab_flat/T_tot
 		self.T_accum = np.zeros_like(T_norm, dtype=np.double)
 		for index, value in enumerate(T_norm):
@@ -55,26 +55,23 @@ class Dynam_Initial_Sample:
 		
 		### -------- store the momentum information -------- ###
 		if self.channel == 'corr':
-			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			filename_corr = str(energy_GeV) + "corr.dat"
 			self.p4_corr = np.fromfile(filename_corr, dtype=float, sep=" ")
 			self.len_corr = int(len(self.p4_corr)/4.0)
 		if self.channel == '1S':
-			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			filename_1S = str(energy_GeV) + "1S.dat"
 			self.p4_1S = np.fromfile(filename_1S, dtype=float, sep=" ")
 			self.len_1S = int(len(self.p4_1S)/4.0)
 		if self.channel == '2S':
-			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			filename_2S = str(energy_GeV) + "2S.dat"
 			self.p4_2S = np.fromfile(filename_2S, dtype=float, sep=" ")
 			self.len_2S = int(len(self.p4_2S)/4.0)
 		if self.channel == '1P':
-			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			filename_1P = str(energy_GeV) + "1P.dat"
 			self.p4_1P = np.fromfile(filename_1P, dtype=float, sep=" ")
 			self.len_1P = int(len(self.p4_1P)/4.0)
 		if self.HQuncorr == True:
+			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			self.p4_bbbar = np.fromfile(filename_bbbar, dtype=float, sep=" ")
 			self.len_bbbar = int(len(self.p4_bbbar)/8.0)
 			self.N_bbbar = Xsect_bbbar[str(energy_GeV)] * T_AA_mb
