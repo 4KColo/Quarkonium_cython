@@ -13,10 +13,10 @@ import LorRot
 
 Taa = {'2760': {'0-10': 23.0, '0-5': 26.32, '5-10': 20.56, '10-20': 14.39, '20-30': 8.6975, '30-40': 5.001, '40-50': 2.675, '50-100': 0.458, '50-70': 0.954, '70-100': 0.127}}		# mb^-1
 Xsect_bbbar = {'2760': 0.06453}		# mb
-Xsect_1S = {'5020': 0.0003384, '2760': 0.000179, '200': 6.486*10.0**(-6)}		# Xsect_pp_1S = {'5020':0.0003983, '2760': 0.000206, '200': 5.94*10.0**(-6)}
-Xsect_2S = {'5020': 0.00008403, '2760': 0.00004456, '200': 1.6*10.0**(-6)}		# Xsect_pp_2S = {'5020':0.00009902, '2760': 0.0000513, '200': 1.448*10.0**(-6)}
-Xsect_3S = {'5020': 0.00008403, '2760': 0.00004456, '200': 1.6*10.0**(-6)}		# Xsect_pp_3S = {'5020':0.00009902, '2760': 0.0000513, '200': 1.448*10.0**(-6)}
-Xsect_1P = {'5020': 0.00008403, '2760': 0.00004456, '200': 1.6*10.0**(-6)}		# Xsect_pp_1P = {'5020':0.00009902, '2760': 0.0000513, '200': 1.448*10.0**(-6)}
+Xsect_1S = {'5020': 0.0003147, '2760': 0.000167, '200': 6.272*10.0**(-6)}	# Xsect_pp_1S = {'5020':0.0003983, '2760': 0.000206, '200': 5.943*10.0**(-6)}
+Xsect_2S = {'5020': 0.00007803,'2760': 0.00004148, '200': 1.545*10.0**(-6)}	# Xsect_pp_2S = {'5020':0.0000991, '2760': 0.0000513, '200': 1.448*10.0**(-6)}
+Xsect_3S = {'5020': 0.00008773,'2760': 0.00004591, '200': 1.576*10.0**(-6)}	# Xsect_pp_3S = {'5020':0.0001096, '2760': 0.00005581, '200': 1.475*10.0**(-6)}
+Xsect_1P = {'5020': 0.003284,  '2760': 0.001849, '200': 9.175*10.0**(-5)}	# Xsect_pp_1P = {'5020':0.004489,  '2760': 0.002451, '200': 8.602*10.0**(-5)}
 gamma_cut = np.cosh(5.0)	# v_max = 0.9999
 Vz_cut = 0.995
 
@@ -43,7 +43,6 @@ class Dynam_Initial_Sample:
 		self.dx = 0.1 	# fm
 		self.dy = 0.1	# fm
 		T_tot = np.sum(Tab_flat)
-		T_AA_mb = Taa[str(energy_GeV)][centrality_str]
 		T_norm = Tab_flat/T_tot
 		self.T_accum = np.zeros_like(T_norm, dtype=np.double)
 		for index, value in enumerate(T_norm):
@@ -74,6 +73,7 @@ class Dynam_Initial_Sample:
 			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			self.p4_bbbar = np.fromfile(filename_bbbar, dtype=float, sep=" ")
 			self.len_bbbar = int(len(self.p4_bbbar)/8.0)
+			T_AA_mb = Taa[str(energy_GeV)][centrality_str]
 			self.N_bbbar = Xsect_bbbar[str(energy_GeV)] * T_AA_mb
 			self.Nsam_bbbar = int(self.N_bbbar) + 1
 		# Nsam_bbbar = number of loops to sample bbbar. 
