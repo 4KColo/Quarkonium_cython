@@ -696,7 +696,8 @@ double RV1S_reco_gluon(double v, double T, double p){
 // no factor of 2 here, need to add factor 2 when determining theta function
 double dist_position_1S(double r){
     double sigma = a_B * InverseFermiToGeV;
-    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
+    return std::exp(-2.0*r/sigma)/(M_PI*std::pow(sigma,3));
+    //return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 
 // now sampling
@@ -1606,7 +1607,8 @@ double RV2S_reco_gluon(double v, double T, double p){
 
 double dist_position_2S(double r){
     double sigma = size_2S * InverseFermiToGeV;
-    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
+    return std::pow(1.-r/sigma, 2) * std::exp(-2.0*r/sigma)/(M_PI*std::pow(sigma,3));
+    //return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 
 // now sampling
@@ -2516,7 +2518,8 @@ double RV1P_reco_gluon(double v, double T, double p){
 
 double dist_position_1P(double r){
     double sigma = size_1P * InverseFermiToGeV;
-    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
+    return pow(r/sigma, 2)/3.0 * std::exp(-2.0*r/sigma)/(M_PI*std::pow(sigma,3));
+    //return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
 }
 
 // now sampling
