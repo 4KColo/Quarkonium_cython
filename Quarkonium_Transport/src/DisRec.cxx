@@ -2518,9 +2518,10 @@ double RV1P_reco_gluon(double v, double T, double p){
 
 double dist_position_1P(double r){
     double sigma = size_1P * InverseFermiToGeV;
-    return r*std::exp(-r/sigma)/(24.*M_PI*std::pow(sigma,4));
+    //return r*std::exp(-r/sigma)/(24.*M_PI*std::pow(sigma,4));
     //return pow(r/sigma, 2)/3.0 * std::exp(-2.0*r/sigma)/(M_PI*std::pow(sigma,3));
-    //return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
+    return std::exp( -r*r/(2.0*sigma*sigma) )/( pow(TwoPi*sigma*sigma, 1.5) );
+    //return r*std::exp( -r*r/(2.0*sigma*sigma) )/( 8.0*M_PI*pow(sigma, 4) );
 }
 
 // now sampling
