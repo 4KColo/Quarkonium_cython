@@ -39,7 +39,7 @@ class QQbar_evol:
 		## -------------- create init p,x sampler ------------ ##
 		self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
 
-####---- initialize Q, Qbar, Quarkonium -- currently we only study Upsilon(1S) ----####
+####---- initialize Q, Qbar, Quarkonium ----####
 ####---- tau0 = 0.6 fm/c is the hydro starting time; before that, free stream
 	def initialize(self, tau0 = 0.6):
 		if self.type == 'dynamical':
@@ -49,6 +49,7 @@ class QQbar_evol:
 			self.U1Slist = {'4-momentum': [], '3-position': [], 'id': 533, 'last_form_time': []}
 			self.U2Slist = {'4-momentum': [], '3-position': [], 'id': 100533, 'last_form_time': []}
 			self.U1Plist = {'4-momentum': [], '3-position': [], 'id': 555, 'last_form_time': []}
+			self.U3Slist = {'4-momentum': [], '3-position': [], 'id': 200533, 'last_form_time': []}
 
 			## --------- sample initial momenta and positions -------- ##
 			self.init.sample()
@@ -62,14 +63,17 @@ class QQbar_evol:
 			self.U2Slist['3-position'] = self.init.U2Sinit_x()
 			self.U1Plist['4-momentum'] = self.init.U1Pinit_p()
 			self.U1Plist['3-position'] = self.init.U1Pinit_x()
+			self.U3Slist['4-momentum'] = self.init.U3Sinit_p()
+			self.U3Slist['3-position'] = self.init.U3Sinit_x()
 			
 			N_Q = len(self.Qlist['4-momentum'])
 			N_Qbar = len(self.Qbarlist['4-momentum'])
 			N_U1S = len(self.U1Slist['4-momentum'])
 			N_U2S = len(self.U2Slist['4-momentum'])
 			N_U1P = len(self.U1Plist['4-momentum'])
+			N_U3S = len(self.U3Slist['4-momentum'])
 			
-			## free stream the Q, Qbar, U1S, U2S in the lab frame by 0.6 time
+			## free stream the Q, Qbar, U1S, U2S, U3S, U1P in the lab frame by 0.6 time
 			for i in range(N_Q):
 				vQ = self.Qlist['4-momentum'][i][1:]/self.Qlist['4-momentum'][i][0]
 				self.Qlist['3-position'][i] += vQ*tau0
@@ -98,7 +102,12 @@ class QQbar_evol:
 				vU1P = self.U1Plist['4-momentum'][i][1:]/self.U1Plist['4-momentum'][i][0]
 				self.U1Plist['3-position'][i] += vU1P*tau0
 				self.U1Plist['last_form_time'].append(0.6)
-									
+
+			for i in range(N_U3S):
+				vU3S = self.U3Slist['4-momentum'][i][1:]/self.U3Slist['4-momentum'][i][0]
+				self.U3Slist['3-position'][i] += vU3S*tau0
+				self.U3Slist['last_form_time'].append(0.6)
+													
 			self.Qlist['4-momentum'] = np.array(self.Qlist['4-momentum'])
 			self.Qlist['3-position'] = np.array(self.Qlist['3-position'])
 			self.Qlist['last_t23'] = np.array(self.Qlist['last_t23'])
@@ -118,6 +127,9 @@ class QQbar_evol:
 			self.U1Plist['4-momentum'] = np.array(self.U1Plist['4-momentum'])
 			self.U1Plist['3-position'] = np.array(self.U1Plist['3-position'])
 			self.U1Plist['last_form_time'] = np.array(self.U1Plist['last_form_time'])
+			self.U3Slist['4-momentum'] = np.array(self.U3Slist['4-momentum'])
+			self.U3Slist['3-position'] = np.array(self.U3Slist['3-position'])
+			self.U3Slist['last_form_time'] = np.array(self.U3Slist['last_form_time'])
 			
 			## ------------- store the current lab time ------------ ##
 			self.t = tau0
@@ -130,6 +142,7 @@ class QQbar_evol:
 		len_U1S = len(self.U1Slist['4-momentum'])
 		len_U2S = len(self.U2Slist['4-momentum'])
 		len_U1P = len(self.U1Plist['4-momentum'])
+		len_U3S = len(self.U3Slist['4-momentum'])
 		
 		### ----------- free stream these particles ------------###
 		for i in range(len_Q):
@@ -147,6 +160,10 @@ class QQbar_evol:
 		for i in range(len_U1P):
 			v3_U1P = self.U1Plist['4-momentum'][i][1:]/self.U1Plist['4-momentum'][i][0]
 			self.U1Plist['3-position'][i] = self.U1Plist['3-position'][i] + dt * v3_U1P
+		for i in range(len_U3S):
+			v3_U3S = self.U3Slist['4-momentum'][i][1:]/self.U3Slist['4-momentum'][i][0]
+			self.U3Slist['3-position'][i] = self.U3Slist['3-position'][i] + dt * v3_U3S
+
 		### ----------- end of free stream particles -----------###
 		
 		### ----- update the time here, otherwise z would be bigger than t ---- ###
@@ -203,6 +220,7 @@ class QQbar_evol:
 		delete_U1S = []
 		delete_U2S = []
 		delete_U1P = []
+		delete_U3S = []
 		add_pQ = []
 		add_pQbar = []
 		add_xQ = []
@@ -384,6 +402,31 @@ class QQbar_evol:
 					add_t23.append(self.t)
 					add_t32.append(self.t)
 					add_dt_last.append(0.0)		
+		
+		for i in range(len_U3S):
+			T_Vxyz = self.hydro.cell_info(self.t, self.U3Slist['3-position'][i])
+			if T_Vxyz[0] >= Tc:
+				delete_U3S.append(i)
+				
+				# momenta of Q and Qbar
+				momentum_U3S_half = self.U3Slist['4-momentum'][i][1:]/2.
+				energy_Q = np.sqrt( np.sum(momentum_U3S_half**2) + M**2 )
+				momentum_Q = np.array( [energy_Q,momentum_U3S_half[0],momentum_U3S_half[1],momentum_U3S_half[2]] )
+				momentum_Qbar = np.array( [energy_Q,momentum_U3S_half[0],momentum_U3S_half[1],momentum_U3S_half[2]] )
+				
+				# positions of Q and Qbar
+				position_Q = self.U3Slist['3-position'][i]
+				#position_Qbar = position_Q
+				
+				# add x and p for the QQbar to the temporary list
+				add_pQ.append(momentum_Q)
+				add_pQbar.append(momentum_Qbar)
+				add_xQ.append(position_Q)
+				#add_xQbar.append(position_Qbar)
+				add_t23.append(self.t)
+				add_t32.append(self.t)
+				add_dt_last.append(0.0)
+				
 		### ------------------ end of decay ------------------- ###
 		
 		
@@ -709,7 +752,10 @@ class QQbar_evol:
 			self.U1Plist['3-position'] = np.delete(self.U1Plist['3-position'], delete_U1P, axis=0)
 			self.U1Plist['4-momentum'] = np.delete(self.U1Plist['4-momentum'], delete_U1P, axis=0)
 			self.U1Plist['last_form_time'] = np.delete(self.U1Plist['last_form_time'], delete_U1P)
-			
+			self.U3Slist['3-position'] = np.delete(self.U3Slist['3-position'], delete_U3S, axis=0)
+			self.U3Slist['4-momentum'] = np.delete(self.U3Slist['4-momentum'], delete_U3S, axis=0)
+			self.U3Slist['last_form_time'] = np.delete(self.U3Slist['last_form_time'], delete_U3S)
+
 			if len(self.Qlist['4-momentum']) == 0:
 				self.Qlist['3-position'] = np.array(add_xQ)
 				self.Qlist['4-momentum'] = np.array(add_pQ)
@@ -746,6 +792,7 @@ class QQbar_evol:
 		self.U1Slist.clear()
 		self.U2Slist.clear()
 		self.U1Plist.clear()
+		self.U3Slist.clear()
 
 
 

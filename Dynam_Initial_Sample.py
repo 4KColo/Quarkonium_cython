@@ -24,6 +24,7 @@ Mb = 4.65
 M1S = 9.46
 M2S = 10.023
 M1P = 10.023
+M3S = 10.355
 
 class Dynam_Initial_Sample:
 	### possible channels include 'corr', '1S', '2S'
@@ -69,6 +70,10 @@ class Dynam_Initial_Sample:
 			filename_1P = str(energy_GeV) + "1P.dat"
 			self.p4_1P = np.fromfile(filename_1P, dtype=float, sep=" ")
 			self.len_1P = int(len(self.p4_1P)/4.0)
+		if self.channel == '3S':
+			filename_3S = str(energy_GeV) + "3S.dat"
+			self.p4_3S = np.fromfile(filename_3S, dtype=float, sep=" ")
+			self.len_3S = int(len(self.p4_3S)/4.0)
 		if self.HQuncorr == True:
 			filename_bbbar = str(energy_GeV) + "bbbar.dat"
 			self.p4_bbbar = np.fromfile(filename_bbbar, dtype=float, sep=" ")
@@ -199,19 +204,39 @@ class Dynam_Initial_Sample:
 					x = (i_x - self.Nx/2.)*self.dx
 					y = (i_y - self.Ny/2.)*self.dy
 					x3_1P.append(np.array([x,y,0.0]))
-					
+
+		if self.channel == '3S':
+			count = 0
+			while count == 0:
+				row_3S = 4*rd.randrange(0, self.len_3S-1, 1)
+				if self.p4_3S[row_3S] < gamma_cut * M3S and abs(self.p4_3S[row_3S+3]/self.p4_3S[row_3S]) < Vz_cut:
+					count += 1
+					## momenta
+					p4_U3S.append( [self.p4_3S[row_3S], self.p4_3S[row_3S+1], self.p4_3S[row_3S+2], self.p4_3S[row_3S+3]] )
+					## positions
+					r_xy = rd.uniform(0.0, 1.0)
+					i_3S = np.searchsorted(self.T_accum, r_xy)
+					i_x = np.floor((i_3S+0.0)/self.Ny)
+					i_y = i_3S - i_x*self.Ny
+					i_x += np.random.rand()
+					i_y += np.random.rand()
+					x = (i_x - self.Nx/2.)*self.dx
+					y = (i_y - self.Ny/2.)*self.dy
+					x3_3S.append(np.array([x,y,0.0]))
+										
 		self.x3_Q = np.array(x3_Q)
 		self.x3_Qbar = np.array(x3_Qbar)
 		self.x3_1S = np.array(x3_1S)
 		self.x3_2S = np.array(x3_2S)
 		self.x3_1P = np.array(x3_1P)
+		self.x3_3S = np.array(x3_3S)
 		self.p4_Q = np.array(p4_Q)
 		self.p4_Qbar = np.array(p4_Qbar)
 		self.p4_U1S = np.array(p4_U1S)
 		self.p4_U2S = np.array(p4_U2S)
 		self.p4_U1P = np.array(p4_U1P)
+		self.p4_U3S = np.array(p4_U3S)
 
-		
 	def Qinit_p(self):
 		return self.p4_Q
 	
@@ -226,6 +251,9 @@ class Dynam_Initial_Sample:
 
 	def U1Pinit_p(self):
 		return self.p4_U1P	
+
+	def U3Sinit_p(self):
+		return self.p4_U3S	
 				
 	def Qinit_x(self):
 		return self.x3_Q
@@ -240,4 +268,7 @@ class Dynam_Initial_Sample:
 		return self.x3_2S	
 
 	def U1Pinit_x(self):
-		return self.x3_1P	
+		return self.x3_1P
+
+	def U3Sinit_x(self):
+		return self.x3_3S	
