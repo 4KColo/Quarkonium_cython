@@ -12,7 +12,7 @@ import LorRot
 
 #### ---------------------- some constants -----------------------------
 C1 = 0.197327                 # 0.197 GeV*fm = 1
-R_search = 1.0				  # (fm), pair-search radius in the recombination
+R_search = 2.0				  # (fm), pair-search radius in the recombination
 
 
 ####--------- initial sample of heavy Q and Qbar using thermal distribution -------- ####
