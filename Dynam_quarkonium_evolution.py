@@ -410,7 +410,7 @@ class QQbar_evol:
 				
 				# momenta of Q and Qbar
 				momentum_U3S_half = self.U3Slist['4-momentum'][i][1:]/2.
-				energy_Q = np.sqrt( np.sum(momentum_U3S_half**2) + M**2 )
+				energy_Q = np.sqrt( np.sum(momentum_U3S_half**2) + self.M**2 )
 				momentum_Q = np.array( [energy_Q,momentum_U3S_half[0],momentum_U3S_half[1],momentum_U3S_half[2]] )
 				momentum_Qbar = np.array( [energy_Q,momentum_U3S_half[0],momentum_U3S_half[1],momentum_U3S_half[2]] )
 				
