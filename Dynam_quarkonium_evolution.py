@@ -22,7 +22,7 @@ T_1P = 0.21					  # melting temperature of Upsilon_2S
 
 class QQbar_evol:
 ####---- input the medium_type when calling the class ----####
-	def __init__(self, medium_type = 'dynamical', centrality_str_given = '0-10', energy_GeV = 2760, recombine = True, HQ_scat = True, sample_method = '1S'):
+	def __init__(self, medium_type = 'dynamical', centrality_str_given = '0-10', energy_GeV = 2760, recombine = True, HQ_scat = True, sample_method = '1S', pT = 0.0):
 		self.type = medium_type
 		self.recombine = recombine
 		self.HQ_scat = HQ_scat
@@ -37,7 +37,7 @@ class QQbar_evol:
 		if self.HQ_scat == True:
 			self.HQ_event = HQ_diff(Mass = self.M)
 		## -------------- create init p,x sampler ------------ ##
-		self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method)
+		self.init = Dynam_Initial_Sample(energy_GeV = self.Ecm, centrality_str = self.centrality, channel = sample_method, pT_low = pT)
 
 ####---- initialize Q, Qbar, Quarkonium ----####
 ####---- tau0 = 0.6 fm/c is the hydro starting time; before that, free stream

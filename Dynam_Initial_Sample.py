@@ -27,8 +27,8 @@ M1P = 10.023
 M3S = 10.355
 
 class Dynam_Initial_Sample:
-	### possible channels include 'corr', '1S', '2S'
-	def __init__(self, energy_GeV = 2760, centrality_str = '0-10', channel = 'corr', HQuncorr = False):
+	### possible channels include 'corr', '1S', '2S', '1P', '3S'
+	def __init__(self, energy_GeV = 2760, centrality_str = '0-10', channel = 'corr', HQuncorr = False, pT_low = 0.0):
 	
 		### -------- store the position information -------- ###
 		# ---- next four lines are for testing by using Weiyao's hydro file
@@ -223,7 +223,80 @@ class Dynam_Initial_Sample:
 					x = (i_x - self.Nx/2.)*self.dx
 					y = (i_y - self.Ny/2.)*self.dy
 					x3_3S.append(np.array([x,y,0.0]))
-										
+
+		if self.channel == '1Sv2':
+			pT = pT_low + rd.uniform(0.0, 1.0)
+			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
+			px = pT * np.cos(theta)
+			py = pT * np.sin(theta)
+			pz = 0.0
+			e = np.sqrt( pT**2 + M_1S**2 )
+			p4_U1S.append( [e, px, py, pz] )	# momenta
+			r_xy = rd.uniform(0.0, 1.0)		# positions
+			i_1S = np.searchsorted(self.T_accum, r_xy)
+			i_x = np.floor((i_1S+0.0)/self.Ny)
+			i_y = i_1S - i_x*self.Ny
+			i_x += np.random.rand()
+			i_y += np.random.rand()
+			x = (i_x - self.Nx/2.)*self.dx
+			y = (i_y - self.Ny/2.)*self.dy
+			x3_1S.append(np.array([x,y,0.0]))
+
+		if self.channel == '2Sv2':
+			pT = pT_low + rd.uniform(0.0, 1.0)
+			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
+			px = pT * np.cos(theta)
+			py = pT * np.sin(theta)
+			pz = 0.0
+			e = np.sqrt( pT**2 + M_2S**2 )
+			p4_U2S.append( [e, px, py, pz] )	# momenta
+			r_xy = rd.uniform(0.0, 1.0)		# positions
+			i_2S = np.searchsorted(self.T_accum, r_xy)
+			i_x = np.floor((i_2S+0.0)/self.Ny)
+			i_y = i_2S - i_x*self.Ny
+			i_x += np.random.rand()
+			i_y += np.random.rand()
+			x = (i_x - self.Nx/2.)*self.dx
+			y = (i_y - self.Ny/2.)*self.dy
+			x3_2S.append(np.array([x,y,0.0]))
+			
+		if self.channel == '1Pv2':
+			pT = pT_low + rd.uniform(0.0, 1.0)
+			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
+			px = pT * np.cos(theta)
+			py = pT * np.sin(theta)
+			pz = 0.0
+			e = np.sqrt( pT**2 + M_1P**2 )
+			p4_U1P.append( [e, px, py, pz] )	# momenta
+			r_xy = rd.uniform(0.0, 1.0)		# positions
+			i_1P = np.searchsorted(self.T_accum, r_xy)
+			i_x = np.floor((i_1P+0.0)/self.Ny)
+			i_y = i_1P - i_x*self.Ny
+			i_x += np.random.rand()
+			i_y += np.random.rand()
+			x = (i_x - self.Nx/2.)*self.dx
+			y = (i_y - self.Ny/2.)*self.dy
+			x3_1P.append(np.array([x,y,0.0]))
+			
+		if self.channel == '3Sv2':
+			pT = pT_low + rd.uniform(0.0, 1.0)
+			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
+			px = pT * np.cos(theta)
+			py = pT * np.sin(theta)
+			pz = 0.0
+			e = np.sqrt( pT**2 + M_3S**2 )
+			p4_U3S.append( [e, px, py, pz] )	# momenta
+			r_xy = rd.uniform(0.0, 1.0)		# positions
+			i_3S = np.searchsorted(self.T_accum, r_xy)
+			i_x = np.floor((i_3S+0.0)/self.Ny)
+			i_y = i_3S - i_x*self.Ny
+			i_x += np.random.rand()
+			i_y += np.random.rand()
+			x = (i_x - self.Nx/2.)*self.dx
+			y = (i_y - self.Ny/2.)*self.dy
+			x3_3S.append(np.array([x,y,0.0]))
+			
+																		
 		self.x3_Q = np.array(x3_Q)
 		self.x3_Qbar = np.array(x3_Qbar)
 		self.x3_1S = np.array(x3_1S)

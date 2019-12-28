@@ -10,7 +10,7 @@ class HQ_diff:
 	def __init__(self, Mass):
 		self.M_b = Mass
 		self.hqsample = HqEvo.HqEvo(
-		options={'transport': {'2->2':True, '2->3':True, '3->2':True},
+		options={'transport': {'2->2':True, '2->3':False, '3->2':False},
 			 'mass': Mass, 
 			 'Nf': 3,
 			 'Kfactor': 1.0,

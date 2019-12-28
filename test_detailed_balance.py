@@ -10,7 +10,7 @@ N_ave = 1			# number of events
 T = 0.3		
 N_step = 1250
 N_momentum = 1250	# after this number of steps, store quarkonium momentum
-dt = 0.04
+dt = 0.01
 tmax = N_step*dt
 t = np.linspace(0.0, tmax, N_step+1)
 Nb0 = 50			# initial number of Q or Qbar
@@ -51,7 +51,7 @@ for i in range(N_ave):
 			for k in range(N1p_t[i][j]):
 				momentum1p_t.append(event_gen.U1Plist['4-momentum'][k])
 		
-		event_gen.run()
+		event_gen.run(dt = dt)
 	event_gen.dict_clear()	## clear data from last simulation
 
 
