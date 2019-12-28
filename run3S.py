@@ -11,12 +11,12 @@ t_hydro = {'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8
 
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
-energy = 2760
+energy = 5020
 N_ave = 20		# No. of parallel runnings
 
 y_max = 2.4
 dt_run = 0.005
-N_step = t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
+N_step = int(t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run)	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
 tmax = N_step*dt_run
 t = np.linspace(0.0, tmax, N_step+1)
 p4i_3S = []			# initial p4
@@ -27,6 +27,7 @@ p4f_3S = []
 tForm_1S = []		# formation time of 1S
 tForm_2S = []
 tForm_1P = []
+tForm_3S = []
 N1S_t = []			# time sequence of No. of 1S state
 N2S_t = []
 N1P_t = []
@@ -92,7 +93,7 @@ N3S_t_ave = np.sum(N3S_t, axis = 0)/(N_ave + 0.0)
 
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'corr.hdf5', 'w')
+file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_3S.hdf5', 'w')
 file1.create_dataset('3Sp4initial', data = p4i_3S)
 file1.create_dataset('3Sp4final', data = p4f_1S)
 file1.create_dataset('3Snumber', data = N3S_t_ave)

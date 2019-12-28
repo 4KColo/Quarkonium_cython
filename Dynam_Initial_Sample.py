@@ -92,11 +92,13 @@ class Dynam_Initial_Sample:
 		p4_U1S = []
 		p4_U2S = []
 		p4_U1P = []
+		p4_U3S = []
 		x3_Q = []
 		x3_Qbar = []
 		x3_1S = []
 		x3_2S = []
 		x3_1P = []
+		x3_3S = []
 		
 		if self.HQuncorr == True:
 			for i in range(self.Nsam_bbbar):

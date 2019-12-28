@@ -7,12 +7,12 @@ import h5py
 
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
-energy = 2760
+energy = 5020
 N_ave = 20		# No. of parallel runnings
 
 y_max = 2.4
 dt_run = 0.005
-N_step = t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
+N_step = int(t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run)	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
 tmax = N_step*dt_run
 t = np.linspace(0.0, tmax, N_step+1)
 p4i_1P = []			# initial p4

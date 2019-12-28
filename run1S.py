@@ -11,12 +11,12 @@ t_hydro = {'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8
 
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
-energy = 2760
+energy = 5020
 N_ave = 20		# No. of parallel runnings
 
 y_max = 2.4
 dt_run = 0.005
-N_step = t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
+N_step = int(t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run)	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
 tmax = N_step*dt_run
 t = np.linspace(0.0, tmax, N_step+1)
 p4i_1S = []			# initial p4
