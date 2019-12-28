@@ -369,7 +369,7 @@ class QQbar_evol:
 					delete_U1P.append(i)
 					if rej_decay1P_mc <= prob_decay1P_gluon:
 						recoil_pQpQbar = self.event.sample_S1P_decay_gluon( v_in_hydrocell, T_Vxyz[0] )
-					elif rej_decay2S_mc <= prob_decay1P_gluon + prob_decay1P_ineq:
+					elif rej_decay1P_mc <= prob_decay1P_gluon + prob_decay1P_ineq:
 						recoil_pQpQbar = self.event.sample_S1P_decay_ineq( v_in_hydrocell, T_Vxyz[0] )
 					else:
 						recoil_pQpQbar = self.event.sample_S1P_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
