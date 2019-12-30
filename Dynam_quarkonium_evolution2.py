@@ -655,7 +655,7 @@ class QQbar_evol:
 					delete_Q.append(i)		# remove this Q later
 					# find the Qbar we need to remove					
 					a = total_prob_reco1S + total_prob_reco2S
-					for j in range(len_recoQbar):
+					for j in range(len_Qbar):
 						if a <= rej_reco_mc <= a + prob_reco1P_all[j]:
 							k = j
 							if rej_reco_mc <= a + prob_reco1P_gluon[j]:
