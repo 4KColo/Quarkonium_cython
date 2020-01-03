@@ -81,7 +81,7 @@ N1P_t_ave = np.sum(N1P_t, axis = 0)/(N_ave + 0.0)
 
 #### ------------ save the data in a h5py file ------------- ####
 
-file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_2S.hdf5', 'w')
+file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_1P.hdf5', 'w')
 file1.create_dataset('1Sp4final', data = p4f_1S)
 file1.create_dataset('1Snumber', data = N1S_t_ave)
 file1.create_dataset('1Sformtime', data = tForm_1S)
