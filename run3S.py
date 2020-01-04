@@ -95,7 +95,7 @@ N3S_t_ave = np.sum(N3S_t, axis = 0)/(N_ave + 0.0)
 
 file1 = h5py.File('energy='+str(energy)+'GeVcentrality='+str(centrality)+'N_event='+str(N_ave)+'_3S.hdf5', 'w')
 file1.create_dataset('3Sp4initial', data = p4i_3S)
-file1.create_dataset('3Sp4final', data = p4f_1S)
+file1.create_dataset('3Sp4final', data = p4f_3S)
 file1.create_dataset('3Snumber', data = N3S_t_ave)
 file1.create_dataset('3Sformtime', data = tForm_3S)
 file1.create_dataset('1Sp4final', data = p4f_1S)
