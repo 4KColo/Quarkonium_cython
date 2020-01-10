@@ -51,6 +51,7 @@ class Dynam_Initial_Sample:
 		file_TAB.close()
 		self.channel = channel
 		self.HQuncorr = HQuncorr
+		self.pT_low = pT_low
 		
 		
 		### -------- store the momentum information -------- ###
@@ -227,7 +228,7 @@ class Dynam_Initial_Sample:
 					x3_3S.append(np.array([x,y,0.0]))
 
 		if self.channel == '1Sv2':
-			pT = pT_low + rd.uniform(0.0, 1.0)
+			pT = self.pT_low + rd.uniform(0.0, 1.0)
 			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
@@ -245,7 +246,7 @@ class Dynam_Initial_Sample:
 			x3_1S.append(np.array([x,y,0.0]))
 
 		if self.channel == '2Sv2':
-			pT = pT_low + rd.uniform(0.0, 1.0)
+			pT = self.pT_low + rd.uniform(0.0, 1.0)
 			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
@@ -263,7 +264,7 @@ class Dynam_Initial_Sample:
 			x3_2S.append(np.array([x,y,0.0]))
 			
 		if self.channel == '1Pv2':
-			pT = pT_low + rd.uniform(0.0, 1.0)
+			pT = self.pT_low + rd.uniform(0.0, 1.0)
 			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
@@ -281,7 +282,7 @@ class Dynam_Initial_Sample:
 			x3_1P.append(np.array([x,y,0.0]))
 			
 		if self.channel == '3Sv2':
-			pT = pT_low + rd.uniform(0.0, 1.0)
+			pT = self.pT_low + rd.uniform(0.0, 1.0)
 			theta = 2.0*np.pi * rd.uniform(0.0, 1.0)
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
