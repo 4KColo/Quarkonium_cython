@@ -431,7 +431,7 @@ cdef class DisRec(object):
 			self.T_RV1P_reco_ineg = gp['RV1P_reco_ineg'].value
 			self.T_S1P_decay_ineg_max = gp['S1P_decay_ineg_max'].value
 			self.T_S1P_reco_ineg_max = gp['S1P_reco_ineg_max'].value
-						
+			
 		else:
 			if gpname in f:
 				del f[gpname]

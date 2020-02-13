@@ -4,10 +4,12 @@ import scipy.integrate as si
 from Dynam_quarkonium_evolution import QQbar_evol
 import h5py
 
-t_hydro = {'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8.8,
+t_hydro = {'200':{'0-10': 10.0, '10-20':8.68, '20-30':7.8, '30-40':6.96,
+				  '40-50':6.08, '50-60':5.26, '60-70':4.4, '70-80':3.6, '80-90':1.82, '90-100':0.6}, 
+		'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8.8,
 				  '40-50':7.7, '50-60':6.6, '60-70':5.5, '70-80':4.4, '80-90':3.4, '90-100':1.0},
 		'5020':{'0-5':12.9, '5-10':12.2, '10-20':11.2, '20-30':10.1, '30-40':9.2,
-			   '40-50':8.1, '50-60':7.0, '60-70':5.9, '70-80':4.7, '80-90':3.8, '90-100':1.24}}
+			   '40-50':8.1, '50-60':7.0, '60-70':5.9, '70-80':4.7, '80-90':3.8, '90-100':1.24, '10-90':8.6}}
 
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
@@ -53,7 +55,7 @@ for i in range(N_ave):
 		event_gen.run(dt = dt_run)
 	
 	# store final momenta
-	lenf_1S = len(event_gen.U1Slist['4-momentum'])	# initial No. of 1S
+	lenf_1S = len(event_gen.U1Slist['4-momentum'])
 	lenf_2S = len(event_gen.U2Slist['4-momentum'])
 	lenf_1P = len(event_gen.U1Plist['4-momentum'])
 	for k in range(lenf_1S):

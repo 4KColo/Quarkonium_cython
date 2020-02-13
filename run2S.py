@@ -4,15 +4,18 @@ import scipy.integrate as si
 from Dynam_quarkonium_evolution import QQbar_evol
 import h5py
 
-t_hydro = {'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8.8,
+t_hydro = {'200':{'0-10': 10.0, '10-20':8.68, '20-30':7.8, '30-40':6.96,
+				  '40-50':6.08, '50-60':5.26, '60-70':4.4, '70-80':3.6, '80-90':1.82, '90-100':0.6}, 
+		'2760':{'0-5':12.4, '5-10':11.6, '10-20':10.6, '20-30':9.7, '30-40':8.8,
 				  '40-50':7.7, '50-60':6.6, '60-70':5.5, '70-80':4.4, '80-90':3.4, '90-100':1.0},
 		'5020':{'0-5':12.9, '5-10':12.2, '10-20':11.2, '20-30':10.1, '30-40':9.2,
 			   '40-50':8.1, '50-60':7.0, '60-70':5.9, '70-80':4.7, '80-90':3.8, '90-100':1.24, '10-90':8.6}}
+
 #### ------------ multiple runs averaged and compare ---------------- ####
 centrality = '0-5'
 energy = 5020
 N_ave = 20		# No. of parallel runnings
-
+pt = 0.0
 y_max = 2.4
 dt_run = 0.005
 N_step = int(t_hydro[str(energy)][centrality] * np.cosh(y_max)/dt_run)	# total step required is t_total / dt, t_total = t_hydro * cosh(y_max)
@@ -30,7 +33,7 @@ tForm_1P = []
 #N1P_t = []			# time sequence of No. of 1P state
 
 # define the event generator
-event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = '2S')
+event_gen = QQbar_evol(centrality_str_given = centrality, energy_GeV = energy, recombine = True, HQ_scat = True, sample_method = '2S', pT = pt)
 
 for i in range(N_ave):
 	# initialize N_ave number of events

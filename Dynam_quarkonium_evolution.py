@@ -16,8 +16,8 @@ C1 = 0.197327				  # 0.197 GeV*fm = 1
 R_search = 2.0				  # (fm), pair-search radius in the recombination
 Tc = 0.154				  	  # critical temperature of QGP
 T_1S = 1.5					  # melting temperature of Upsilon_1S
-T_2S = 0.21					  # melting temperature of Upsilon_2S
-T_1P = 0.21					  # melting temperature of Upsilon_2S
+T_2S = 1.5					  # melting temperature of Upsilon_2S
+T_1P = 1.5					  # melting temperature of Upsilon_2S
 
 
 class QQbar_evol:
@@ -243,7 +243,7 @@ class QQbar_evol:
 				rate_decay1S_ineg = self.event.get_R1S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
 				
 				# in lab frame decay probability
-				# dt = 0.04 is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
+				# dt is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
 				prob_decay1S_gluon = rate_decay1S_gluon * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
 				prob_decay1S_ineq = rate_decay1S_ineq * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
 				prob_decay1S_ineg = rate_decay1S_ineg * dt/C1 * p4_in_hydrocell[0]/self.U1Slist['4-momentum'][i][0]
@@ -301,7 +301,7 @@ class QQbar_evol:
 				rate_decay2S_ineg = self.event.get_R2S_decay_ineg( v_in_hydrocell, T_Vxyz[0] )
 				
 				# in lab frame decay probability
-				# dt = 0.04 is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
+				# dt is time in lab frame, dt' = dt*E'/E is time in hydro cell frame
 				prob_decay2S_gluon = rate_decay2S_gluon * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]
 				prob_decay2S_ineq = rate_decay2S_ineq * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]
 				prob_decay2S_ineg = rate_decay2S_ineg * dt/C1 * p4_in_hydrocell[0]/self.U2Slist['4-momentum'][i][0]

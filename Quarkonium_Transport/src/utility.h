@@ -1,8 +1,8 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-const double fix_alpha_s = 0.3;
-const double pot_alpha_s = 0.4;
+const double fix_alpha_s = 0.32;
+const double pot_alpha_s = 0.32;
 const double Nc = 3., TF = 0.5, CF = 4./3.;
 const double rho_c = 1./(Nc*Nc - 1.);
 const double M = 4.65; //[GeV]

@@ -233,7 +233,7 @@ class Dynam_Initial_Sample:
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
 			pz = 0.0
-			e = np.sqrt( pT**2 + M_1S**2 )
+			e = np.sqrt( pT**2 + M1S**2 )
 			p4_U1S.append( [e, px, py, pz] )	# momenta
 			r_xy = rd.uniform(0.0, 1.0)		# positions
 			i_1S = np.searchsorted(self.T_accum, r_xy)
@@ -251,7 +251,7 @@ class Dynam_Initial_Sample:
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
 			pz = 0.0
-			e = np.sqrt( pT**2 + M_2S**2 )
+			e = np.sqrt( pT**2 + M2S**2 )
 			p4_U2S.append( [e, px, py, pz] )	# momenta
 			r_xy = rd.uniform(0.0, 1.0)		# positions
 			i_2S = np.searchsorted(self.T_accum, r_xy)
@@ -269,7 +269,7 @@ class Dynam_Initial_Sample:
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
 			pz = 0.0
-			e = np.sqrt( pT**2 + M_1P**2 )
+			e = np.sqrt( pT**2 + M1P**2 )
 			p4_U1P.append( [e, px, py, pz] )	# momenta
 			r_xy = rd.uniform(0.0, 1.0)		# positions
 			i_1P = np.searchsorted(self.T_accum, r_xy)
@@ -287,7 +287,7 @@ class Dynam_Initial_Sample:
 			px = pT * np.cos(theta)
 			py = pT * np.sin(theta)
 			pz = 0.0
-			e = np.sqrt( pT**2 + M_3S**2 )
+			e = np.sqrt( pT**2 + M3S**2 )
 			p4_U3S.append( [e, px, py, pz] )	# momenta
 			r_xy = rd.uniform(0.0, 1.0)		# positions
 			i_3S = np.searchsorted(self.T_accum, r_xy)
