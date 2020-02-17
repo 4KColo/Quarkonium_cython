@@ -524,45 +524,45 @@ class QQbar_evol:
 				# spin 3/4 factor for Upsilon(1S, 2S) v.s. eta_b
 				# spin 1 for chi_b(1P)
 				if self.process == 'all':
-					prob_reco1S_gluon = 0.75*8./9.*np.array(rate_reco1S_gluon)*dt/C1
-					prob_reco1S_ineq = 0.75*8./9.*np.array(rate_reco1S_ineq)*dt/C1
-					prob_reco1S_ineg = 0.75*8./9.*np.array(rate_reco1S_ineg)*dt/C1
-					prob_reco2S_gluon = 0.75*8./9.*np.array(rate_reco2S_gluon)*dt/C1
-					prob_reco2S_ineq = 0.75*8./9.*np.array(rate_reco2S_ineq)*dt/C1
-					prob_reco2S_ineg = 0.75*8./9.*np.array(rate_reco2S_ineg)*dt/C1
-					prob_reco1P_gluon = 8./9.*np.array(rate_reco1P_gluon)*dt/C1
-					prob_reco1P_ineq = 8./9.*np.array(rate_reco1P_ineq)*dt/C1
-					prob_reco1P_ineg = 8./9.*np.array(rate_reco1P_ineg)*dt/C1
+					prob_reco1S_gluon = 2./3.*np.array(rate_reco1S_gluon)*dt/C1
+					prob_reco1S_ineq = 2./3.*np.array(rate_reco1S_ineq)*dt/C1
+					prob_reco1S_ineg = 2./3.*np.array(rate_reco1S_ineg)*dt/C1
+					prob_reco2S_gluon = 2./3.*np.array(rate_reco2S_gluon)*dt/C1
+					prob_reco2S_ineq = 2./3.*np.array(rate_reco2S_ineq)*dt/C1
+					prob_reco2S_ineg = 2./3.*np.array(rate_reco2S_ineg)*dt/C1
+					prob_reco1P_gluon = 2./3.*np.array(rate_reco1P_gluon)*dt/C1
+					prob_reco1P_ineq = 2./3.*np.array(rate_reco1P_ineq)*dt/C1
+					prob_reco1P_ineg = 2./3.*np.array(rate_reco1P_ineg)*dt/C1
 				if self.process == 'gluon':
-					prob_reco1S_gluon = 0.75*8./9.*np.array(rate_reco1S_gluon)*dt/C1
+					prob_reco1S_gluon = 2./3.*np.array(rate_reco1S_gluon)*dt/C1
 					prob_reco1S_ineq = 0.0*np.array(rate_reco1S_ineq)
 					prob_reco1S_ineg = 0.0*np.array(rate_reco1S_ineg)
-					prob_reco2S_gluon = 0.75*8./9.*np.array(rate_reco2S_gluon)*dt/C1
+					prob_reco2S_gluon = 2./3.*np.array(rate_reco2S_gluon)*dt/C1
 					prob_reco2S_ineq = 0.0*np.array(rate_reco2S_ineq)
 					prob_reco2S_ineg = 0.0*np.array(rate_reco2S_ineg)
-					prob_reco1P_gluon = 8./9.*np.array(rate_reco1P_gluon)*dt/C1
+					prob_reco1P_gluon = 2./3.*np.array(rate_reco1P_gluon)*dt/C1
 					prob_reco1P_ineq = 0.0*np.array(rate_reco1P_ineq)
 					prob_reco1P_ineg = 0.0*np.array(rate_reco1P_ineg)
 				if self.process == 'ineq':
 					prob_reco1S_gluon = 0.0*np.array(rate_reco1S_gluon)
-					prob_reco1S_ineq = 0.75*8./9.*np.array(rate_reco1S_ineq)*dt/C1
+					prob_reco1S_ineq = 2./3.*np.array(rate_reco1S_ineq)*dt/C1
 					prob_reco1S_ineg = 0.0*np.array(rate_reco1S_ineg)
 					prob_reco2S_gluon = 0.0*np.array(rate_reco2S_gluon)
-					prob_reco2S_ineq = 0.75*8./9.*np.array(rate_reco2S_ineq)*dt/C1
+					prob_reco2S_ineq = 2./3.*np.array(rate_reco2S_ineq)*dt/C1
 					prob_reco2S_ineg = 0.0*np.array(rate_reco2S_ineg)
 					prob_reco1P_gluon = 0.0*np.array(rate_reco1P_gluon)
-					prob_reco1P_ineq = 8./9.*np.array(rate_reco1P_ineq)*dt/C1
+					prob_reco1P_ineq = 2./3.*np.array(rate_reco1P_ineq)*dt/C1
 					prob_reco1P_ineg = 0.0*np.array(rate_reco1P_ineg)
 				if self.process == 'ineg':
 					prob_reco1S_gluon = 0.0*np.array(rate_reco1S_gluon)
 					prob_reco1S_ineq = 0.0*np.array(rate_reco1S_ineq)
-					prob_reco1S_ineg = 0.75*8./9.*np.array(rate_reco1S_ineg)*dt/C1
+					prob_reco1S_ineg = 2./3.*np.array(rate_reco1S_ineg)*dt/C1
 					prob_reco2S_gluon = 0.0*np.array(rate_reco2S_gluon)
 					prob_reco2S_ineq = 0.0*np.array(rate_reco2S_ineq)
-					prob_reco2S_ineg = 0.75*8./9.*np.array(rate_reco2S_ineg)*dt/C1
+					prob_reco2S_ineg = 2./3.*np.array(rate_reco2S_ineg)*dt/C1
 					prob_reco1P_gluon = 0.0*np.array(rate_reco1P_gluon)
 					prob_reco1P_ineq = 0.0*np.array(rate_reco1P_ineq)
-					prob_reco1P_ineg = 8./9.*np.array(rate_reco1P_ineg)*dt/C1
+					prob_reco1P_ineg = 2./3.*np.array(rate_reco1P_ineg)*dt/C1
 									
 				prob_reco1S_all = prob_reco1S_gluon + prob_reco1S_ineq + prob_reco1S_ineg
 				prob_reco2S_all = prob_reco2S_gluon + prob_reco2S_ineq + prob_reco2S_ineg

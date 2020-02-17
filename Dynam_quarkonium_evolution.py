@@ -523,9 +523,9 @@ class QQbar_evol:
 				prob_reco2S_gluon = 2./3.*np.array(rate_reco2S_gluon)*dt/C1
 				prob_reco2S_ineq = 2./3.*np.array(rate_reco2S_ineq)*dt/C1
 				prob_reco2S_ineg = 2./3.*np.array(rate_reco2S_ineg)*dt/C1
-				prob_reco1P_gluon = 8./9.*np.array(rate_reco1P_gluon)*dt/C1
-				prob_reco1P_ineq = 8./9.*np.array(rate_reco1P_ineq)*dt/C1
-				prob_reco1P_ineg = 8./9.*np.array(rate_reco1P_ineg)*dt/C1
+				prob_reco1P_gluon = 2./3.*np.array(rate_reco1P_gluon)*dt/C1
+				prob_reco1P_ineq = 2./3.*np.array(rate_reco1P_ineq)*dt/C1
+				prob_reco1P_ineg = 2./3.*np.array(rate_reco1P_ineg)*dt/C1
 				prob_reco1S_all = prob_reco1S_gluon + prob_reco1S_ineq + prob_reco1S_ineg
 				prob_reco2S_all = prob_reco2S_gluon + prob_reco2S_ineq + prob_reco2S_ineg
 				prob_reco1P_all = prob_reco1P_gluon + prob_reco1P_ineq + prob_reco1P_ineg
