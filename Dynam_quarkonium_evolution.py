@@ -515,8 +515,7 @@ class QQbar_evol:
 							
 				# get the recombine probability in the hydro cell frame
 				# dt is in lab frame; in hydro cell dt' = E_CMcell / E_CMlab * dt
-				# spin 3/4 factor for Upsilon(1S, 2S) v.s. eta_b, 8/9 color octet; spin 1 for chi_b(1P)
-				# the factor of 2 is for the theta function normalization, if use rdotp < 0
+				# spin=1 gives 3/4 factor for Upsilon(1S, 2S) and chi_b(1P) v.s. eta_b and h_b
 				prob_reco1S_gluon = 2./3.*np.array(rate_reco1S_gluon)*dt/C1
 				prob_reco1S_ineq = 2./3.*np.array(rate_reco1S_ineq)*dt/C1
 				prob_reco1S_ineg = 2./3.*np.array(rate_reco1S_ineg)*dt/C1

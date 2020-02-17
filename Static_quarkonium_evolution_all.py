@@ -521,8 +521,7 @@ class QQbar_evol:
 						rate_reco1P_ineg.append(0.)
 											
 				# get the recombine probability
-				# spin 3/4 factor for Upsilon(1S, 2S) v.s. eta_b
-				# spin 1 for chi_b(1P)
+				# spin=1 gives 3/4 factor for Upsilon(1S, 2S) and chi_b(1P) v.s. eta_b and h_b
 				if self.process == 'all':
 					prob_reco1S_gluon = 2./3.*np.array(rate_reco1S_gluon)*dt/C1
 					prob_reco1S_ineq = 2./3.*np.array(rate_reco1S_ineq)*dt/C1
