@@ -21,9 +21,9 @@ N1s_t = []			# to store number of U1s in each time step
 N2s_t = []			# to store number of U2s in each time step
 N1p_t = []			# to store number of U1p in each time step
 Nb_t = []			# to store number of Q or Qbar in each time step
-momentum1s_t = []
-momentum2s_t = []
-momentum1p_t = []
+#momentum1s_t = []
+#momentum2s_t = []
+#momentum1p_t = []
 P_sample = 5.0		# GeV, initial uniform sampling
 Process_chosen = 'all'
 Species = '1S'
@@ -43,21 +43,21 @@ for i in range(N_ave):
 		N2s_t[i].append(len(event_gen.U2Slist['4-momentum']))	# store N_2S(t) for each event
 		N1p_t[i].append(len(event_gen.U1Plist['4-momentum']))	# store N_1P(t) for each event
 
-		if j > N_momentum and j%10 == 0:
-			for k in range(N1s_t[i][j]):
-				momentum1s_t.append(event_gen.U1Slist['4-momentum'][k])
-			for k in range(N2s_t[i][j]):
-				momentum2s_t.append(event_gen.U2Slist['4-momentum'][k])
-			for k in range(N1p_t[i][j]):
-				momentum1p_t.append(event_gen.U1Plist['4-momentum'][k])
+		#if j > N_momentum and j%10 == 0:
+			#for k in range(N1s_t[i][j]):
+				#momentum1s_t.append(event_gen.U1Slist['4-momentum'][k])
+			#for k in range(N2s_t[i][j]):
+				#momentum2s_t.append(event_gen.U2Slist['4-momentum'][k])
+			#for k in range(N1p_t[i][j]):
+				#momentum1p_t.append(event_gen.U1Plist['4-momentum'][k])
 		
 		event_gen.run(dt = dt)
 	event_gen.dict_clear()	## clear data from last simulation
 
 
-momentum1s_t = np.array(momentum1s_t)
-momentum2s_t = np.array(momentum2s_t)
-momentum1p_t = np.array(momentum1p_t)
+#momentum1s_t = np.array(momentum1s_t)
+#momentum2s_t = np.array(momentum2s_t)
+#momentum1p_t = np.array(momentum1p_t)
 N1s_t = np.array(N1s_t)
 N2s_t = np.array(N2s_t)
 N1p_t = np.array(N1p_t)
@@ -81,9 +81,9 @@ file1 = h5py.File('UniformPmax='+str(P_sample)+'HQT='+str(T)+'N_event='+str(N_av
 file1.create_dataset('1S_percentage', data = R1s_t)
 file1.create_dataset('2S_percentage', data = R2s_t)
 file1.create_dataset('1P_percentage', data = R1p_t)
-file1.create_dataset('1S_momentum', data = momentum1s_t)
-file1.create_dataset('2S_momentum', data = momentum2s_t)
-file1.create_dataset('1P_momentum', data = momentum1p_t)
+#file1.create_dataset('1S_momentum', data = momentum1s_t)
+#file1.create_dataset('2S_momentum', data = momentum2s_t)
+#file1.create_dataset('1P_momentum', data = momentum1p_t)
 file1.create_dataset('time', data = t)
 file1.close()
 
