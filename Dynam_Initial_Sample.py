@@ -44,6 +44,7 @@ class Dynam_Initial_Sample:
 		self.dx = 0.1 	# fm
 		self.dy = 0.1	# fm
 		T_tot = np.sum(Tab_flat)
+		T_AA_mb = T_tot/100000.0	# mb^-1
 		T_norm = Tab_flat/T_tot
 		self.T_accum = np.zeros_like(T_norm, dtype=np.double)
 		for index, value in enumerate(T_norm):
